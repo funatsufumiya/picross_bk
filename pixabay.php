@@ -3,6 +3,24 @@
 require_once __DIR__ . "/vendor/autoload.php";
 require_once __DIR__ . "/random_word.php";
 
+set_time_limit(0);
+echo str_repeat( ' ', 4072 );
+
+function basic_auth(){
+  $user = "fu";
+  $pass = "Clojure_180";
+  switch (true) {
+  case !isset($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']):
+  case $_SERVER['PHP_AUTH_USER'] !== $user:
+  case $_SERVER['PHP_AUTH_PW']   !== $pass:
+    header('WWW-Authenticate: Basic realm="Enter username and password."');
+    header('Content-Type: text/plain; charset=utf-8');
+    die('このページを見るにはログインが必要です');
+  }
+}
+
+basic_auth();
+
 function call_api($method, $url, $data = false)
 {
     $curl = curl_init();
@@ -133,7 +151,7 @@ function image_resize_bk_base64($image, $w, $h){
 
 $pixabay_api = "https://pixabay.com/api/";
 $api_key = "3690984-cd232e93b678c3bb97ff9789f";
-$word = random_word();
+$word = (isset($_REQUEST['q']))? $_REQUEST['q']: random_word();
 
 $res = call_api2("GET", $pixabay_api, array(
   "key" => $api_key,
@@ -201,6 +219,7 @@ foreach($hits as $v){
   if($count >= 20) break;
 
   $preview_url = $v["previewURL"];
+  echo "<div style='white-space: nowrap; margin-bottom: 20px;'>";
   echo "<img src='$preview_url'/>";
   // $blob = black_image_blob($preview_url);
   // $base64 = blob_jpg_to_base64($blob);
@@ -217,13 +236,18 @@ foreach($hits as $v){
   $img_30_bk_base64 = image_resize_bk_base64($img, 30, 30);
 
   echo "<img src='$img_base64'/>";
+  echo "<br>";
   // echo "<img class='dot_img' src='$img_15_base64'/>";
   echo "<img class='dot_img' src='$img_10_bk_base64'/>";
   echo "<img class='dot_img' src='$img_15_bk_base64'/>";
   echo "<img class='dot_img' src='$img_20_bk_base64'/>";
   echo "<img class='dot_img' src='$img_25_bk_base64'/>";
   echo "<img class='dot_img' src='$img_30_bk_base64'/>";
-  echo "<br>";
+  echo "</div>";
+
+  @ob_flush();
+  @flush();
+
   $count++;
 }
 
