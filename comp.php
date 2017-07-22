@@ -13,7 +13,7 @@ $is_uploaded = $is_post;
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>画像の白黒化</title>
+  <title>圧縮率の表示</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
   <link rel="stylesheet" href="https://unpkg.com/purecss@0.6.2/build/pure-min.css" integrity="sha384-UQiGfs9ICog+LwheBSRCt1o5cbyKIHbwjWscjemyBMT9YCUMZffs6UqUTd0hObXD" crossorigin="anonymous">
   <script src="https://use.fontawesome.com/319d485afb.js"></script>
@@ -30,10 +30,10 @@ $is_uploaded = $is_post;
 </head>
 <body>
   <div id="content">
-    <h2>白黒化したい画像をアップロード</h2>
+    <h2>圧縮率の表示</h2>
     <form enctype="multipart/form-data" action="" method="POST"> 
       <input name="img" type="file"><br>
-      閾値: <input id="threshold" name="threshold" type="number" min="0" max="1.0" step="any" class="num_input" value="<?php echo $threshold_default; ?>"><br>
+      <!-- 閾値: <input id="threshold" name="threshold" type="number" min="0" max="1.0" step="any" class="num_input" value="<?php echo $threshold_default; ?>"><br> -->
       <input type="submit" value="読み込む">
       <hr>
     </form>
@@ -45,14 +45,32 @@ $is_uploaded = $is_post;
     $img_path = "./files/tmpimg.bin";
     move_uploaded_file($_FILES['img']['tmp_name'], $img_path);
 
-    $out_img_path = "./files/bk.jpg";
-    // echo shell_exec("/usr/bin/convert $img_path bmp3:-");
-    $cmd = "/usr/bin/convert $img_path bmp3:- | /usr/bin/mkbitmap -x -t $thresh - -o - | /usr/bin/convert - jpeg:$out_img_path";
-    shell_exec($cmd);
+    $bmp = "./files/comp.bmp";
+    $jpg = "./files/comp.jpg";
+    $gif = "./files/comp.gif";
+    $png = "./files/comp.png";
+
+    function cmd($type, $out){
+      global $img_path;
+      return intval(shell_exec("/usr/bin/convert $img_path $type:$out && du -sB1 $out | cut -f1"));
+    }
+    $bmp_size = cmd('bmp3',$bmp);
+    $jpg_size = cmd('jpg',$jpg);
+    $gif_size = cmd('gif',$gif);
+    $png_size = cmd('png',$png);
+
+    $jpg_r = $jpg_size / $bmp_size;
+    $gif_r = $gif_size / $bmp_size;
+    $png_r = $png_size / $bmp_size;
 
     ?>
 
-    <img src="<?php echo $out_img_path; ?>" alt="">
+    bmp: <?php echo $bmp_size; ?><br>
+    jpg: <?php echo $jpg_size; ?> ( <?php echo sprintf("%2.2f", $jpg_r*100.0); ?>% )<br>
+    gif: <?php echo $gif_size; ?> ( <?php echo sprintf("%2.2f", $gif_r*100.0); ?>% )<br>
+    png: <?php echo $png_size; ?> ( <?php echo sprintf("%2.2f", $png_r*100.0); ?>% )<br>
+
+    <img src="<?php echo $jpg; ?>" alt="">
 
     <script>
     <?php
@@ -61,7 +79,7 @@ $is_uploaded = $is_post;
     }
     ?>
     jQuery(function($){
-      $("#threshold").val(<?php echo $thresh; ?>);
+      // $("#threshold").val(<?php echo $thresh; ?>);
     });
     </script>
 
