@@ -52,7 +52,7 @@ function call_api2($method, $url, $data = false){
 }
 
 function black_image_blob($url, $thresh=0.5){
-  $blob = shell_exec("curl '$url' | /usr/bin/convert - bmp3:- | /usr/bin/mkbitmap -x -t $thresh - -o - | /usr/bin/convert - jpeg:-");
+  $blob = shell_exec("curl '$url' | /usr/bin/convert - -background white -flatten bmp3:- | /usr/bin/mkbitmap -x -t $thresh - -o - | /usr/bin/convert - jpeg:-");
   return $blob;
 }
 
