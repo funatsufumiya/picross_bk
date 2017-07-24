@@ -3,9 +3,6 @@
 require_once __DIR__ . "/vendor/autoload.php";
 require_once __DIR__ . "/random_word.php";
 
-set_time_limit(0);
-echo str_repeat( ' ', 4072 );
-
 function basic_auth(){
   $user = "fu";
   $pass = "Clojure_180";
@@ -20,6 +17,8 @@ function basic_auth(){
 }
 
 basic_auth();
+set_time_limit(0);
+echo str_repeat( ' ', 10000 );
 
 function call_api($method, $url, $data = false)
 {
