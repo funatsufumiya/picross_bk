@@ -128,7 +128,7 @@ class Matrix {
           case Filled:
             return "#";
           case Cross:
-            return "/";
+            return "-";
         }
       }).join("");
     }).join("\n");

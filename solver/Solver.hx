@@ -29,6 +29,12 @@ class Solver {
   private function calcSimpleBoxes(len:Int, nums: Array<Int>, row: Array<State>)
     : Option<Array<State>>
   {
+    
+    // 数字が 0 ならばスキップ
+    if(nums.length == 1 && nums[0] == 0){
+      return None;
+    }
+
     var first_num = nums[0];
     var rest_nums = nums.slice(1, nums.length);
     var sum = rest_nums.fold(function(n, num){
@@ -45,7 +51,7 @@ class Solver {
     if(len - sum < max){
       // Apply simple boxes
 
-      var dots = row.slice(0, row.length-1);
+      var dots = row.slice(0, row.length);
       var rest_len = len;
       var n = null;
 
@@ -59,17 +65,25 @@ class Solver {
 
         var diff_edge = rest_len - sum;
         var diff_num = n - diff_edge;
+        var fill_first = sum - diff_num;
+        var fill_last = sum;
 
         // trace("n: " + n);
         // trace("sum: " + sum);
+
         // trace("rest_len: " + rest_len);
         // trace("diff_edge: " + diff_edge);
         // trace("diff_num: " + diff_num);
 
+        // trace("fill_first: " + fill_first);
+        // trace("fill_last: " + fill_last);
+
+        // fill_first から fill_last までを共通部分として塗りつぶす
         if(diff_num > 0){
-          for( j in (rest_len-n)...(rest_len) ){
+          for( j in fill_first...fill_last ){
             dots[j] = Filled;
           }
+          // trace("dots: " + dots);
         }
       }
 
