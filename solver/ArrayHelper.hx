@@ -20,7 +20,7 @@ class ArrayHelper {
     }
 
     for( i in 0...arr1.length ){
-      if(arr1[0] != arr2[0]){
+      if(arr1[i] != arr2[i]){
         return false;
       }
     }

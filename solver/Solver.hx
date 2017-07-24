@@ -161,6 +161,7 @@ class Solver {
         // trace(row_nums);
 
         if(nums.eq(row_nums)){
+          // trace("eq: " + nums + " / " + row_nums);
           flag = true;
           matrix.rowReplaceBlankToCross(y);
         }
@@ -172,6 +173,7 @@ class Solver {
         var nums = problem.columns[x];
         var column_nums = matrix.columnToNumbers(x);
         if(nums.eq(column_nums)){
+          // trace("eq: " + nums + " / " + column_nums);
           flag = true;
           matrix.columnReplaceBlankToCross(x);
         }
