@@ -104,6 +104,8 @@ class Solver {
   }
 
   private function simpleBoxes(): Bool {
+    var flag = false;
+    
     for( y in 0...height ){
       if(matrix.hasBlankInRow(y)){
         var nums = problem.rows[y];
@@ -117,7 +119,9 @@ class Solver {
             for( x in 0...width ){
               matrix.set(x,y,list[x]);
             }
-            return true;
+            // return true;
+            flag = true;
+            continue;
         }
       }
     }
@@ -135,15 +139,19 @@ class Solver {
             for( y in 0...height ){
               matrix.set(x,y,list[y]);
             }
-            return true;
+            // return true;
+            flag = true;
+            continue;
         }
       }
     }
 
-    return false;
+    return flag;
   }
 
   private function checkAndCross(){
+    var flag = false;
+
     for( y in 0...height ){
       if(matrix.hasBlankInRow(y)){
         var nums = problem.rows[y];
@@ -153,6 +161,7 @@ class Solver {
         // trace(row_nums);
 
         if(nums.eq(row_nums)){
+          flag = true;
           matrix.rowReplaceBlankToCross(y);
         }
       }
@@ -163,10 +172,13 @@ class Solver {
         var nums = problem.columns[x];
         var column_nums = matrix.columnToNumbers(x);
         if(nums.eq(column_nums)){
+          flag = true;
           matrix.columnReplaceBlankToCross(x);
         }
       }
     }
+
+    return flag;
   }
 
   public function solve(): Option<Matrix>{
@@ -174,8 +186,7 @@ class Solver {
 
     var step = 0;
     while(matrix.hasBlank()){
-      checkAndCross();
-      if(!simpleBoxes()){
+      if(!simpleBoxes() && !checkAndCross()){
         trace("失敗 (" + step + " steps)");
         return None; // 失敗
       }
