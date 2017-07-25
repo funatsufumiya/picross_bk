@@ -299,8 +299,13 @@ class Solver {
 
     step = 0;
     while(matrix.hasBlank()){
-      if(!simpleShrinkingSharedAreaMethod() && !checkFixedAndCross()){
+      if(
+          !simpleShrinkingSharedAreaMethod()
+          && !checkFixedAndCross()
+        ){
         trace("失敗 (" + step + " steps)");
+        trace("rows: " + problem.rows);
+        trace("columns: " + problem.columns);
         return None; // 失敗
       }
       // trace("\n" + matrix.toString());

@@ -1,6 +1,8 @@
 import State.*;
+import StateGroup.*;
 
 using Lambda;
+using StateHelper;
 
 class Matrix {
 
@@ -35,6 +37,35 @@ class Matrix {
 
   public function column(x:Int){
     return [for (y in 0...height) matrix[y][x]];
+  }
+
+  private function toGroup(list:Array<State>){
+    var kind:State = null;
+    var groups = [];
+    var n = 0;
+    
+    for( i in 0...list.length ){
+      var state = list[i];
+      if(!Type.enumEq(kind, state)){
+        if(kind != null && n > 0){
+          groups.push(kind.toGroup(n));
+        }
+        kind = state;
+        n = 1;
+      }else{
+        n += 1;
+      }
+    }
+
+    if(kind != null && n > 0){
+      groups.push(kind.toGroup(n));
+    }
+    
+    if(groups.length == 0){
+      return [];
+    }else{
+      return groups;
+    }
   }
 
   private function toNumbers(list:Array<State>){

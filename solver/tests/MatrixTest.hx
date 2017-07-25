@@ -2,6 +2,7 @@ package tests;
 
 import haxe.unit.TestCase;
 import State.*;
+import StateGroup.*;
 
 class MatrixTest extends TestCase {
   public function test_width_height(){
@@ -56,5 +57,33 @@ class MatrixTest extends TestCase {
     assertEquals("[0]",
         Std.string(Reflect.callMethod(mat,
             Reflect.field(mat, "toNumbers"), [list4])));
+  }
+
+  public function test_toGroup(){
+    var mat = new Matrix(5,5);
+
+    assertEquals("[BlankGroup(5)]",
+        Std.string(Reflect.callMethod(mat,
+            Reflect.field(mat, "toGroup"),
+            [
+              [Blank,Blank,Blank,Blank,Blank]
+            ]
+        )));
+
+    assertEquals("[FilledGroup(3),BlankGroup(2)]",
+        Std.string(Reflect.callMethod(mat,
+            Reflect.field(mat, "toGroup"),
+            [
+              [Filled,Filled,Filled,Blank,Blank]
+            ]
+        )));
+
+    assertEquals("[CrossGroup(1),FilledGroup(3),BlankGroup(2),CrossGroup(2)]",
+        Std.string(Reflect.callMethod(mat,
+            Reflect.field(mat, "toGroup"),
+            [
+              [Cross,Filled,Filled,Filled,Blank,Blank,Cross,Cross]
+            ]
+        )));
   }
 }
