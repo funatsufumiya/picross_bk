@@ -119,6 +119,8 @@ class Solver {
             for( x in 0...width ){
               matrix.set(x,y,list[x]);
             }
+            trace("Simple boxes applied to row " + y);
+            trace("\n" + matrix.toString());
             // return true;
             flag = true;
             continue;
@@ -139,6 +141,8 @@ class Solver {
             for( y in 0...height ){
               matrix.set(x,y,list[y]);
             }
+            trace("Simple boxes applied to column " + x);
+            trace("\n" + matrix.toString());
             // return true;
             flag = true;
             continue;
@@ -164,6 +168,8 @@ class Solver {
           // trace("eq: " + nums + " / " + row_nums);
           flag = true;
           matrix.rowReplaceBlankToCross(y);
+          trace("Numbers completed on row " + y);
+          trace("\n" + matrix.toString());
         }
       }
     }
@@ -176,6 +182,8 @@ class Solver {
           // trace("eq: " + nums + " / " + column_nums);
           flag = true;
           matrix.columnReplaceBlankToCross(x);
+          trace("Numbers completed on column " + x);
+          trace("\n" + matrix.toString());
         }
       }
     }
@@ -192,7 +200,7 @@ class Solver {
         trace("失敗 (" + step + " steps)");
         return None; // 失敗
       }
-      trace("\n" + matrix.toString());
+      // trace("\n" + matrix.toString());
 
       step += 1;
     }
