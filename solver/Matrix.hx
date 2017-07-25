@@ -118,6 +118,14 @@ class Matrix {
     return toNumbers(this.column(x));
   }
 
+  public function rowToGroup(y:Int){
+    return toGroup(this.row(y));
+  }
+
+  public function columnToGroup(x:Int){
+    return toGroup(this.column(x));
+  }
+
   public function hasBlank(){
     for( y in 0...height ){
       for( x in 0...width ){

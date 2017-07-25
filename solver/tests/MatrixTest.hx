@@ -59,6 +59,19 @@ class MatrixTest extends TestCase {
             Reflect.field(mat, "toNumbers"), [list4])));
   }
 
+  public function test_rowToNumbers_columnToNumbers(){
+    var mat = new Matrix(5,5);
+    mat.set(0,1,Filled);
+    mat.set(0,2,Filled);
+    assertEquals("[0]", Std.string(mat.rowToNumbers(0)));
+    assertEquals("[1]", Std.string(mat.rowToNumbers(1)));
+    assertEquals("[1]", Std.string(mat.rowToNumbers(2)));
+    assertEquals("[2]", Std.string(mat.columnToNumbers(0)));
+    assertEquals("[0]", Std.string(mat.columnToNumbers(1)));
+    mat.set(0,4,Filled);
+    assertEquals("[2,1]", Std.string(mat.columnToNumbers(0)));
+  }
+
   public function test_toGroup(){
     var mat = new Matrix(5,5);
 
@@ -85,5 +98,15 @@ class MatrixTest extends TestCase {
               [Cross,Filled,Filled,Filled,Blank,Blank,Cross,Cross]
             ]
         )));
+  }
+  
+  public function test_rowToGroup_columnToGroup(){
+    var mat = new Matrix(5,5);
+    mat.set(0,1,Filled);
+    mat.set(0,2,Filled);
+    assertEquals("[BlankGroup(5)]", Std.string(mat.rowToGroup(0)));
+    assertEquals("[FilledGroup(1),BlankGroup(4)]", Std.string(mat.rowToGroup(1)));
+    assertEquals("[BlankGroup(1),FilledGroup(2),BlankGroup(2)]", Std.string(mat.columnToGroup(0)));
+    assertEquals("[BlankGroup(5)]", Std.string(mat.columnToGroup(1)));
   }
 }
