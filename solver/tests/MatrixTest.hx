@@ -1,7 +1,7 @@
 package tests;
 
-import State.*;
 import haxe.unit.TestCase;
+import State.*;
 
 class MatrixTest extends TestCase {
   public function test_width_height(){
@@ -48,5 +48,13 @@ class MatrixTest extends TestCase {
     assertEquals("[1,3]",
         Std.string(Reflect.callMethod(mat,
             Reflect.field(mat, "toNumbers"), [list2])));
+    var list3 = [Filled,Filled,Blank,Filled,Filled];
+    assertEquals("[2,2]",
+        Std.string(Reflect.callMethod(mat,
+            Reflect.field(mat, "toNumbers"), [list3])));
+    var list4 = [Blank,Blank,Blank,Blank,Blank];
+    assertEquals("[0]",
+        Std.string(Reflect.callMethod(mat,
+            Reflect.field(mat, "toNumbers"), [list4])));
   }
 }

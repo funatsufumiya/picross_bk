@@ -4,11 +4,14 @@ import State.*;
 using Lambda;
 using ArrayHelper;
 
+typedef ShrinkedList = { list: Array<State>, left: Int }
+
 class Solver {
   private var problem: Problem;
   private var matrix: Matrix; 
   private var width: Int;
   private var height: Int;
+  private var step: Int;
 
   public function new(){
   }
@@ -26,15 +29,17 @@ class Solver {
     trace("height: " + problem.height);
   }
 
-  private function calcSimpleBoxes(len:Int, nums: Array<Int>, row: Array<State>)
+  private function calcSharedArea(nums: Array<Int>, row: Array<State>)
     : Option<Array<State>>
   {
+    // Noneを返す場合は変更なし、Someを返す場合は変更あり
     
     // 数字が 0 ならばスキップ
     if(nums.length == 1 && nums[0] == 0){
       return None;
     }
 
+    var len = row.length;
     var first_num = nums[0];
     var rest_nums = nums.slice(1, nums.length);
     var sum = rest_nums.fold(function(n, num){
@@ -103,26 +108,57 @@ class Solver {
 
   }
 
-  private function simpleBoxes(): Bool {
+  private function simpleShrink(row: Array<State>): ShrinkedList {
+    var list = row;
+    var left = 0;
+
+    while(true){
+      if(list.length == 0){
+        return {list: list, left: 0};
+      }
+
+      if(Type.enumEq(list[0], Cross)){
+        list = list.slice(1,list.length);
+        left += 1;
+      }else if(Type.enumEq(list[list.length-1], Cross)){
+        list = list.slice(0,list.length-1);
+      }else{
+        return {list: list, left: left};
+      }
+    }
+  }
+
+  private function simpleShrinkingSharedAreaMethod(): Bool {
     var flag = false;
     
     for( y in 0...height ){
       if(matrix.hasBlankInRow(y)){
         var nums = problem.rows[y];
         var row = matrix.row(y);
-        var result = calcSimpleBoxes(width, nums, row);
+        // trace("before shrink: " + row);
+        var shrinked = simpleShrink(row);
+        var left = shrinked.left;
+        // trace("after shrink: " + shrinked.list);
+        if(!shrinked.list.hasBlank()){
+          continue;
+        }
+        var result = calcSharedArea(nums, shrinked.list);
         switch (result) {
           case None:
             continue;
           case Some(list):
             // trace("Some(list): " + list);
-            for( x in 0...width ){
-              matrix.set(x,y,list[x]);
+            for( x in left...(shrinked.list.length + left) ){
+              matrix.set(x,y,list[x-left]);
             }
-            trace("Simple boxes applied to row " + y);
+            if(row.length == shrinked.list.length){
+              trace("[row "+y+"] simple shared area method");
+            }else{
+              trace("[row "+y+"] simple shrinking shared area method");
+            }
             trace("\n" + matrix.toString());
-            // return true;
             flag = true;
+            step += 1;
             continue;
         }
       }
@@ -132,19 +168,34 @@ class Solver {
       if(matrix.hasBlankInColumn(x)){
         var nums = problem.columns[x];
         var column = matrix.column(x);
-        var result = calcSimpleBoxes(height, nums, column);
+        var shrinked = simpleShrink(column);
+        var left = shrinked.left;
+        if(!shrinked.list.hasBlank()){
+          continue;
+        }
+        var result = calcSharedArea(nums, shrinked.list);
         switch (result) {
           case None:
             continue;
           case Some(list):
             // trace("Some(list): " + list);
-            for( y in 0...height ){
-              matrix.set(x,y,list[y]);
+            for( y in left...(list.length + left) ){
+              matrix.set(x,y,list[y-left]);
             }
-            trace("Simple boxes applied to column " + x);
+            if(column.length == shrinked.list.length){
+              trace("[col "+x+"] simple shared area method");
+            }else{
+              trace("[col "+x+"] simple shrinking shared area method");
+            }
             trace("\n" + matrix.toString());
-            // return true;
             flag = true;
+            step += 1;
+            // trace("nums: "+nums);
+            // trace("column: "+column);
+            // trace("shrinked: "+shrinked);
+            // trace("list: "+list);
+            // trace("shrinked.list.length: "+shrinked.list.length);
+            // trace("list.length: "+list.length);
             continue;
         }
       }
@@ -153,7 +204,57 @@ class Solver {
     return flag;
   }
 
-  private function checkAndCross(){
+  private function simpleSharedAreaMethod(): Bool {
+    var flag = false;
+    
+    for( y in 0...height ){
+      if(matrix.hasBlankInRow(y)){
+        var nums = problem.rows[y];
+        var row = matrix.row(y);
+        var result = calcSharedArea(nums, row);
+        switch (result) {
+          case None:
+            continue;
+          case Some(list):
+            // trace("Some(list): " + list);
+            for( x in 0...width ){
+              matrix.set(x,y,list[x]);
+            }
+            trace("[row "+y+"] simple shared area method");
+            trace("\n" + matrix.toString());
+            flag = true;
+            step += 1;
+            continue;
+        }
+      }
+    }
+
+    for( x in 0...width ){
+      if(matrix.hasBlankInColumn(x)){
+        var nums = problem.columns[x];
+        var column = matrix.column(x);
+        var result = calcSharedArea(nums, column);
+        switch (result) {
+          case None:
+            continue;
+          case Some(list):
+            // trace("Some(list): " + list);
+            for( y in 0...height ){
+              matrix.set(x,y,list[y]);
+            }
+            trace("[col "+x+"] simple shared area method");
+            trace("\n" + matrix.toString());
+            flag = true;
+            step += 1;
+            continue;
+        }
+      }
+    }
+
+    return flag;
+  }
+
+  private function checkFixedAndCross(){
     var flag = false;
 
     for( y in 0...height ){
@@ -167,8 +268,9 @@ class Solver {
         if(nums.eq(row_nums)){
           // trace("eq: " + nums + " / " + row_nums);
           flag = true;
+          step += 1;
           matrix.rowReplaceBlankToCross(y);
-          trace("Numbers completed on row " + y);
+          trace("[row "+y+"] numbers completed");
           trace("\n" + matrix.toString());
         }
       }
@@ -181,8 +283,9 @@ class Solver {
         if(nums.eq(column_nums)){
           // trace("eq: " + nums + " / " + column_nums);
           flag = true;
+          step += 1;
           matrix.columnReplaceBlankToCross(x);
-          trace("Numbers completed on column " + x);
+          trace("[col "+x+"] numbers completed");
           trace("\n" + matrix.toString());
         }
       }
@@ -194,15 +297,13 @@ class Solver {
   public function solve(): Option<Matrix>{
     matrix = new Matrix(width, height);
 
-    var step = 0;
+    step = 0;
     while(matrix.hasBlank()){
-      if(!simpleBoxes() && !checkAndCross()){
+      if(!simpleShrinkingSharedAreaMethod() && !checkFixedAndCross()){
         trace("失敗 (" + step + " steps)");
         return None; // 失敗
       }
       // trace("\n" + matrix.toString());
-
-      step += 1;
     }
 
     trace("成功 (" + step + " steps)");

@@ -27,4 +27,14 @@ class ArrayHelper {
 
     return true;
   }
+
+  public static function hasBlank( arr:Array<State> ){
+    for( v in arr ){
+      if(Type.enumEq(v, State.Blank)){
+        return true;
+      }
+    }
+
+    return false;
+  }
 }
