@@ -39,7 +39,7 @@ class Matrix {
     return [for (y in 0...height) matrix[y][x]];
   }
 
-  private function toGroup(list:Array<State>){
+  public static function toGroups(list:Array<State>){
     var kind:State = null;
     var groups = [];
     var n = 0;
@@ -68,7 +68,7 @@ class Matrix {
     }
   }
 
-  private function toNumbers(list:Array<State>){
+  public static function toNumbers(list:Array<State>){
     var nums = [];
     var n = 0;
     for( i in 0...list.length ){
@@ -111,19 +111,19 @@ class Matrix {
   }
 
   public function rowToNumbers(y:Int){
-    return toNumbers(this.row(y));
+    return Matrix.toNumbers(this.row(y));
   }
 
   public function columnToNumbers(x:Int){
-    return toNumbers(this.column(x));
+    return Matrix.toNumbers(this.column(x));
   }
 
   public function rowToGroup(y:Int){
-    return toGroup(this.row(y));
+    return Matrix.toGroups(this.row(y));
   }
 
   public function columnToGroup(x:Int){
-    return toGroup(this.column(x));
+    return Matrix.toGroups(this.column(x));
   }
 
   public function hasBlank(){

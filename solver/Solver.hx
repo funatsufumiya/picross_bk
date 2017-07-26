@@ -3,6 +3,7 @@ import State.*;
 
 using Lambda;
 using ArrayHelper;
+using StateHelper;
 
 typedef ShrinkedList = { list: Array<State>, left: Int }
 
@@ -108,13 +109,63 @@ class Solver {
 
   }
 
-  private function simpleShrink(row: Array<State>): ShrinkedList {
+  private function smartShrink(nums: Array<Int>, row: Array<State>): ShrinkedList {
     var list = row;
     var left = 0;
 
     while(true){
+      var sh = simpleShrink(list, left);
+      list = sh.list;
+      left = sh.left;
+
+      if(list.length == 0 || nums.length == 0){
+        return {list: list, left: left};
+      }
+
+      var gr = list.toGroups();
+      if(gr.length < 2){
+        return {list: list, left: left};
+      }
+
+      var len = gr.length;
+      var first_num = nums[0];
+      var last_num = nums[nums.length-1];
+
+      // [XOX__ を [__ に短縮する
+      if(
+          gr[0].isFilledGroup()
+          && gr[0].getCount() == first_num
+          && gr[1].isCrossGroup()
+        ){
+
+        var cross_count = gr[1].getCount();
+        list = list.slice(first_num + cross_count, list.length);
+        left = left + first_num + cross_count;
+
+      // __XOX] を __] に短縮する
+      }else if(
+          gr[len-1].isFilledGroup()
+          && gr[len-1].getCount() == last_num
+          && gr[len-2].isCrossGroup()
+        ){
+
+        var cross_count = gr[len-2].getCount();
+        list = list.slice(0, list.length - last_num - cross_count);
+        // left = left;
+
+      }else{
+        return {list: list, left: left};
+      }
+    }
+  }
+
+  private function simpleShrink(row: Array<State>, left_offset = 0): ShrinkedList {
+    var list = row;
+    var left = left_offset;
+
+    while(true){
       if(list.length == 0){
-        return {list: list, left: 0};
+        return {list: list, left: left};
       }
 
       if(Type.enumEq(list[0], Cross)){

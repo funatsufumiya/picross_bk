@@ -42,21 +42,18 @@ class MatrixTest extends TestCase {
   public function test_toNumbers(){
     var mat = new Matrix(5,5);
     var list = [Filled,Filled,Filled,Blank,Blank];
+    var f = function(v){ return Matrix.toNumbers(v[0]); };
     assertEquals("[3]",
-        Std.string(Reflect.callMethod(mat,
-            Reflect.field(mat, "toNumbers"), [list])));
+        Std.string(f([list])));
     var list2 = [Filled,Blank,Filled,Filled,Filled];
     assertEquals("[1,3]",
-        Std.string(Reflect.callMethod(mat,
-            Reflect.field(mat, "toNumbers"), [list2])));
+        Std.string(f([list2])));
     var list3 = [Filled,Filled,Blank,Filled,Filled];
     assertEquals("[2,2]",
-        Std.string(Reflect.callMethod(mat,
-            Reflect.field(mat, "toNumbers"), [list3])));
+        Std.string(f([list3])));
     var list4 = [Blank,Blank,Blank,Blank,Blank];
     assertEquals("[0]",
-        Std.string(Reflect.callMethod(mat,
-            Reflect.field(mat, "toNumbers"), [list4])));
+        Std.string(f([list4])));
   }
 
   public function test_rowToNumbers_columnToNumbers(){
@@ -72,28 +69,26 @@ class MatrixTest extends TestCase {
     assertEquals("[2,1]", Std.string(mat.columnToNumbers(0)));
   }
 
-  public function test_toGroup(){
+  public function test_toGroups(){
     var mat = new Matrix(5,5);
+    var f = function(v){ return Matrix.toGroups(v[0]); };
 
     assertEquals("[BlankGroup(5)]",
-        Std.string(Reflect.callMethod(mat,
-            Reflect.field(mat, "toGroup"),
+        Std.string(f(
             [
               [Blank,Blank,Blank,Blank,Blank]
             ]
         )));
 
     assertEquals("[FilledGroup(3),BlankGroup(2)]",
-        Std.string(Reflect.callMethod(mat,
-            Reflect.field(mat, "toGroup"),
+        Std.string(f(
             [
               [Filled,Filled,Filled,Blank,Blank]
             ]
         )));
 
     assertEquals("[CrossGroup(1),FilledGroup(3),BlankGroup(2),CrossGroup(2)]",
-        Std.string(Reflect.callMethod(mat,
-            Reflect.field(mat, "toGroup"),
+        Std.string(f(
             [
               [Cross,Filled,Filled,Filled,Blank,Blank,Cross,Cross]
             ]
