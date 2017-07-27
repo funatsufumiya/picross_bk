@@ -328,12 +328,13 @@ class Solver {
     for( y in 0...height ){
       if(matrix.hasBlankInRow(y)){
         var nums = problem.rows[y];
+        // セルの並びを数列に変換する
         var row_nums = matrix.rowToNumbers(y);
 
         // trace(matrix.row(y));
         // trace(row_nums);
 
-        // 問題の数列と、現在の数字が一致すれば
+        // 問題の数列と、セルの数列が一致すれば
         if(nums.eq(row_nums)){
           // trace("eq: " + nums + " / " + row_nums);
           flag = true;
@@ -349,8 +350,9 @@ class Solver {
     for( x in 0...width ){
       if(matrix.hasBlankInColumn(x)){
         var nums = problem.columns[x];
+        // セルの並びを数列に変換する
         var column_nums = matrix.columnToNumbers(x);
-        // 問題の数列と、現在の数字が一致すれば
+        // 問題の数列と、セルの数列が一致すれば
         if(nums.eq(column_nums)){
           // trace("eq: " + nums + " / " + column_nums);
           flag = true;
