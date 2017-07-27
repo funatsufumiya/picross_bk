@@ -246,6 +246,22 @@ class Solver {
         nums = nums.slice(1, nums.length);
         // nums.shift();
 
+      // [_X___ を [XX___ に置換する
+      }else if(
+          gr[0].isBlankGroup()
+          && gr[0].getCount() < first_num
+          && gr[1].isCrossGroup()
+        ){
+
+        var edge_count = gr[0].getCount();
+        for( i in left...(left+edge_count) ){
+          result[i] = Cross;
+        }
+        list = list.slice(edge_count + 1, list.length);
+        left += edge_count + 1;
+        nums = nums.slice(1, nums.length);
+        // nums.shift();
+
       // ___O] を __XO] に置換する
       }else if(
           gr[gr_len-1].isFilledGroup()
@@ -276,6 +292,22 @@ class Solver {
         result[orig_len - 1 - right - last_num - edge_count] = Cross;
         list = list.slice(0, list.length - last_num - edge_count - 1);
         right += last_num + edge_count + 1;
+        nums = nums.slice(0, nums.length-1);
+        // nums.shift();
+
+      // ___X_] を ___XX] に置換する
+      }else if(
+          gr[gr_len-1].isBlankGroup()
+          && gr[gr_len-1].getCount() < last_num
+          && gr[gr_len-2].isCrossGroup()
+        ){
+
+        var edge_count = gr[gr_len-1].getCount();
+        for( i in (orig_len - right - edge_count)...(orig_len - right) ){
+          result[i] = Cross;
+        }
+        list = list.slice(0, list.length - edge_count - 1);
+        right += edge_count + 1;
         nums = nums.slice(0, nums.length-1);
         // nums.shift();
 
