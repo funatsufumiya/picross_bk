@@ -194,9 +194,8 @@ class Solver {
     }
 
     while(true){
-      // trace("list: " + list);
       var sh = simpleShrink(list, left);
-      right += (list.length - sh.list.length);
+      right += (list.length - sh.list.length) - sh.left;
       list = sh.list;
       left = sh.left;
 
@@ -306,6 +305,7 @@ class Solver {
         for( i in (orig_len - right - edge_count)...(orig_len - right) ){
           result[i] = Cross;
         }
+        result[orig_len - right - edge_count] = Cross;
         list = list.slice(0, list.length - edge_count - 1);
         right += edge_count + 1;
         nums = nums.slice(0, nums.length-1);

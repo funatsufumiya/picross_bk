@@ -337,6 +337,16 @@ class SolverTest extends TestCase {
             ]
         )));
 
+    assertEquals(
+        "Some([Cross,Filled,Filled,Filled,Filled,Filled,Filled,Filled,Filled,Cross,Cross,Cross,Cross,Cross,Cross])",
+        Std.string( f(
+            [
+              [8],
+              [Cross,Filled,Filled,Filled,Filled,
+              Filled,Filled,Filled,Filled,Cross,
+              Cross,Cross,Cross,Blank,Cross]
+            ]
+        )));
   }
 
 }
