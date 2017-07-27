@@ -107,7 +107,7 @@ class SolverTest extends TestCase {
     var f = Reflect.callMethod.bind(solver,Reflect.field(solver, "smartShrink"),_);
 
     assertEquals(
-        "{left: 0,list: [Blank,Blank,Blank]}",
+        "{nums: [1],left: 0,list: [Blank,Blank,Blank]}",
         Std.string( f(
             [
               [1],
@@ -116,7 +116,7 @@ class SolverTest extends TestCase {
         )));
 
     assertEquals(
-        "{left: 2,list: [Blank,Blank,Blank]}",
+        "{nums: [2],left: 2,list: [Blank,Blank,Blank]}",
         Std.string( f(
             [
               [1,2],
@@ -125,7 +125,7 @@ class SolverTest extends TestCase {
         )));
 
     assertEquals(
-        "{left: 3,list: [Blank,Blank,Blank]}",
+        "{nums: [2],left: 3,list: [Blank,Blank,Blank]}",
         Std.string( f(
             [
               [1,2],
@@ -134,7 +134,7 @@ class SolverTest extends TestCase {
         )));
 
     assertEquals(
-        "{left: 0,list: [Blank,Blank,Blank]}",
+        "{nums: [2],left: 0,list: [Blank,Blank,Blank]}",
         Std.string( f(
             [
               [2,1],
@@ -143,7 +143,7 @@ class SolverTest extends TestCase {
         )));
 
     assertEquals(
-        "{left: 3,list: [Blank,Blank,Blank]}",
+        "{nums: [2],left: 3,list: [Blank,Blank,Blank]}",
         Std.string( f(
             [
               [1,2,1],
@@ -152,11 +152,20 @@ class SolverTest extends TestCase {
         )));
 
     assertEquals(
-        "{left: 5,list: [Blank,Blank,Blank]}",
+        "{nums: [2],left: 5,list: [Blank,Blank,Blank]}",
         Std.string( f(
             [
               [1,1,2],
               [Cross,Filled,Cross,Filled,Cross,Blank,Blank,Blank]
+            ]
+        )));
+
+    assertEquals(
+        "{nums: [2],left: 6,list: [Blank,Blank,Blank]}",
+        Std.string( f(
+            [
+              [1,2,2],
+              [Cross,Filled,Cross,Filled,Filled,Cross,Blank,Blank,Blank]
             ]
         )));
 

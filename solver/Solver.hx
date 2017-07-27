@@ -6,6 +6,7 @@ using ArrayHelper;
 using StateHelper;
 
 typedef ShrinkedList = { list: Array<State>, left: Int }
+typedef SmartShrinkedList = { list: Array<State>, left: Int, nums: Array<Int> }
 
 class Solver {
   private var problem: Problem;
@@ -109,8 +110,9 @@ class Solver {
 
   }
 
-  private function smartShrink(nums: Array<Int>, row: Array<State>): ShrinkedList {
-    var list = row;
+  private function smartShrink(_nums: Array<Int>, _list: Array<State>): SmartShrinkedList {
+    var list = _list;
+    var nums = _nums;
     var left = 0;
 
     while(true){
@@ -119,12 +121,12 @@ class Solver {
       left = sh.left;
 
       if(list.length == 0 || nums.length == 0){
-        return {list: list, left: left};
+        return {list: list, left: left, nums: nums};
       }
 
       var gr = list.toGroups();
       if(gr.length < 2){
-        return {list: list, left: left};
+        return {list: list, left: left, nums: nums};
       }
 
       var len = gr.length;
@@ -141,6 +143,8 @@ class Solver {
         var cross_count = gr[1].getCount();
         list = list.slice(first_num + cross_count, list.length);
         left = left + first_num + cross_count;
+        nums = nums.slice(1, nums.length);
+        // nums.shift();
 
       // __XOX] を __] に短縮する
       }else if(
@@ -152,9 +156,11 @@ class Solver {
         var cross_count = gr[len-2].getCount();
         list = list.slice(0, list.length - last_num - cross_count);
         // left = left;
+        nums = nums.slice(0, nums.length-1);
+        // nums.pop();
 
       }else{
-        return {list: list, left: left};
+        return {list: list, left: left, nums: nums};
       }
     }
   }
