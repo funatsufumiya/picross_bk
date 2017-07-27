@@ -604,6 +604,22 @@ class Solver {
     return flag;
   }
 
+  private function isCompleted(){
+    for( y in 0...height ){
+      if(matrix.hasBlankInRow(y)){
+        return false;
+      }
+    }
+
+    for( x in 0...height ){
+      if(matrix.hasBlankInColumn(x)){
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   // 数字が完成している行・列を検出して、空白を×に置き換える
   private function checkFixedAndCross(){
     var flag = false;
@@ -684,6 +700,11 @@ class Solver {
           && !smartCrossAndFill()
           && !checkFixedAndCross()
         ){
+
+        // WORKAROUND: なぜか完成しているのに失敗となる場合があるので
+        if( isCompleted() ){
+          break;
+        }
         trace("失敗 (" + step + " steps)");
         trace("rows: " + problem.rows);
         trace("columns: " + problem.columns);
@@ -693,6 +714,7 @@ class Solver {
     }
 
     trace("成功 (" + step + " steps)");
+    trace("\n" + matrix.toString());
     return Some(matrix); // 成功
   }
 }
