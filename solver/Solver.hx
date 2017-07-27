@@ -18,19 +18,23 @@ class Solver {
   public function new(){
   }
 
+  // 問題をJSONから読み込む
   public function readFromJson(json: String){
     this.problem = new Problem(json);
     this.width = problem.width;
     this.height = problem.height;
 
-    trace("rows: " + problem.rows);
-    trace("rowDepth: " + problem.rowDepth);
-    trace("columns: " + problem.columns);
-    trace("columnDepth: " + problem.columnDepth);
-    trace("width: " + problem.width);
-    trace("height: " + problem.height);
+    // trace("rows: " + problem.rows);
+    // trace("rowDepth: " + problem.rowDepth);
+    // trace("columns: " + problem.columns);
+    // trace("columnDepth: " + problem.columnDepth);
+    // trace("width: " + problem.width);
+    // trace("height: " + problem.height);
   }
 
+  // 行・列の共通部分を実際に計算する関数
+  // 変更があった場合は、Some([...])で計算結果を返す
+  // 変更がなかった場合はNoneを返す
   private function calcSharedArea(nums: Array<Int>, row: Array<State>)
     : Option<Array<State>>
   {
@@ -110,6 +114,7 @@ class Solver {
 
   }
 
+  // 端の方の完成している数字のマスを検出し、その分縮めて返す
   private function smartShrink(_nums: Array<Int>, _list: Array<State>): SmartShrinkedList {
     var list = _list;
     var nums = _nums;
@@ -165,8 +170,10 @@ class Solver {
     }
   }
 
-  private function simpleShrink(row: Array<State>, left_offset = 0): ShrinkedList {
-    var list = row;
+  // 両端にある×を検出し、その分を縮小して返す。
+  // 左(上)からどれだけ縮小されたかを、left、結果をlistに格納する。
+  private function simpleShrink(_list: Array<State>, left_offset = 0): ShrinkedList {
+    var list = _list;
     var left = left_offset;
 
     while(true){
@@ -185,6 +192,8 @@ class Solver {
     }
   }
 
+  // 端にある×の分だけ縮小し、行・列の数字の共通部分を塗りつぶす
+  // 変更があった場合は true, なかった場合は false を返す
   private function simpleShrinkingSharedAreaMethod(): Bool {
     var flag = false;
     
@@ -192,19 +201,19 @@ class Solver {
       if(matrix.hasBlankInRow(y)){
         var nums = problem.rows[y];
         var row = matrix.row(y);
-        // trace("before shrink: " + row);
+        // ここで一度行を縮小する
         var shrinked = simpleShrink(row);
         var left = shrinked.left;
-        // trace("after shrink: " + shrinked.list);
-        if(!shrinked.list.hasBlank()){
-          continue;
-        }
+        // if(!shrinked.list.hasBlank()){
+        //   continue;
+        // }
+        // 共通部分を計算
         var result = calcSharedArea(nums, shrinked.list);
         switch (result) {
           case None:
             continue;
           case Some(list):
-            // trace("Some(list): " + list);
+            // 共通部分の塗りを実際に反映する
             for( x in left...(shrinked.list.length + left) ){
               matrix.set(x,y,list[x-left]);
             }
@@ -227,9 +236,9 @@ class Solver {
         var column = matrix.column(x);
         var shrinked = simpleShrink(column);
         var left = shrinked.left;
-        if(!shrinked.list.hasBlank()){
-          continue;
-        }
+        // if(!shrinked.list.hasBlank()){
+        //   continue;
+        // }
         var result = calcSharedArea(nums, shrinked.list);
         switch (result) {
           case None:
@@ -261,6 +270,7 @@ class Solver {
     return flag;
   }
 
+  // 行・列の数字の共通部分を塗りつぶす
   private function simpleSharedAreaMethod(): Bool {
     var flag = false;
     
@@ -311,6 +321,7 @@ class Solver {
     return flag;
   }
 
+  // 数字が完成している行・列を検出して、空白を×に置き換える
   private function checkFixedAndCross(){
     var flag = false;
 
@@ -322,10 +333,12 @@ class Solver {
         // trace(matrix.row(y));
         // trace(row_nums);
 
+        // 問題の数列と、現在の数字が一致すれば
         if(nums.eq(row_nums)){
           // trace("eq: " + nums + " / " + row_nums);
           flag = true;
           step += 1;
+          // 空白を×に置き換える
           matrix.rowReplaceBlankToCross(y);
           trace("[row "+y+"] numbers completed");
           trace("\n" + matrix.toString());
@@ -337,10 +350,12 @@ class Solver {
       if(matrix.hasBlankInColumn(x)){
         var nums = problem.columns[x];
         var column_nums = matrix.columnToNumbers(x);
+        // 問題の数列と、現在の数字が一致すれば
         if(nums.eq(column_nums)){
           // trace("eq: " + nums + " / " + column_nums);
           flag = true;
           step += 1;
+          // 空白を×に置き換える
           matrix.columnReplaceBlankToCross(x);
           trace("[col "+x+"] numbers completed");
           trace("\n" + matrix.toString());
@@ -351,6 +366,7 @@ class Solver {
     return flag;
   }
 
+  // 問題を解く
   public function solve(): Option<Matrix>{
     matrix = new Matrix(width, height);
 
