@@ -170,4 +170,155 @@ class SolverTest extends TestCase {
         )));
 
   }
+
+  public function test_smartCrossAndFill(){
+    var solver = new Solver();
+    var f = Reflect.callMethod.bind(solver,Reflect.field(solver, "calcSmartCrossAndFill"),_);
+  
+    assertEquals(
+        "Some([Filled,Cross,Blank,Blank,Blank])",
+        Std.string( f(
+            [
+              [1,2],
+              [Filled,Blank,Blank,Blank,Blank]
+            ]
+        )));
+
+    assertEquals(
+        "Some([Cross,Filled,Cross,Blank,Blank,Blank])",
+        Std.string( f(
+            [
+              [1,2],
+              [Cross,Filled,Blank,Blank,Blank,Blank]
+            ]
+        )));
+
+    assertEquals(
+        "Some([Blank,Blank,Blank,Cross,Filled,Filled])",
+        Std.string( f(
+            [
+              [1,2],
+              [Blank,Blank,Blank,Blank,Filled,Filled]
+            ]
+        )));
+
+    assertEquals(
+        "Some([Blank,Blank,Blank,Cross,Filled,Filled,Cross])",
+        Std.string( f(
+            [
+              [1,2],
+              [Blank,Blank,Blank,Blank,Filled,Filled,Cross]
+            ]
+        )));
+
+    assertEquals(
+        "Some([Cross,Filled,Cross,Blank,Blank,Blank])",
+        Std.string( f(
+            [
+              [1,2],
+              [Blank,Filled,Blank,Blank,Blank,Blank]
+            ]
+        )));
+
+    assertEquals(
+        "None",
+        Std.string( f(
+            [
+              [1,2],
+              [Blank,Blank,Filled,Blank,Blank,Blank,Blank]
+            ]
+        )));
+
+    assertEquals(
+        "Some([Cross,Cross,Filled,Filled,Filled,Cross,Blank,Blank,Blank])",
+        Std.string( f(
+            [
+              [3,2],
+              [Blank,Blank,Filled,Filled,Filled,Blank,Blank,Blank,Blank]
+            ]
+        )));
+
+    assertEquals(
+        "Some([Filled,Cross,Filled,Filled,Cross,Blank,Blank,Blank])",
+        Std.string( f(
+            [
+              [1,2,3],
+              [Filled,Blank,Filled,Filled,Blank,Blank,Blank,Blank]
+            ]
+        )));
+
+    assertEquals(
+        "Some([Blank,Blank,Cross,Filled,Cross])",
+        Std.string( f(
+            [
+              [1],
+              [Blank,Blank,Blank,Filled,Blank]
+            ]
+        )));
+
+    assertEquals(
+        "Some([Blank,Blank,Blank,Cross,Filled,Filled,Cross,Filled,Cross])",
+        Std.string( f(
+            [
+              [3,2,1],
+              [Blank,Blank,Blank,Blank,Filled,Filled,Blank,Filled,Blank]
+            ]
+        )));
+
+    assertEquals(
+        "Some([Filled,Cross,Cross,Filled,Filled,Cross,Blank,Blank,Blank])",
+        Std.string( f(
+            [
+              [1,2,3],
+              [Filled,Blank,Blank,Filled,Filled,Blank,Blank,Blank,Blank]
+            ]
+        )));
+
+    assertEquals(
+        "Some([Filled,Cross,Cross,Cross,Filled,Filled,Cross,Blank,Blank,Blank])",
+        Std.string( f(
+            [
+              [1,2,3],
+              [Filled,Blank,Blank,Blank,Filled,Filled,Blank,Blank,Blank,Blank]
+            ]
+        )));
+
+    assertEquals(
+        "Some([Filled,Cross,Blank,Blank,Blank,Filled,Filled,Blank,Blank,Blank,Blank])",
+        Std.string( f(
+            [
+              [1,2,3],
+              [Filled,Blank,Blank,Blank,Blank,Filled,Filled,Blank,Blank,Blank,Blank]
+            ]
+        )));
+
+    assertEquals(
+        "Some([Blank,Blank,Blank,Cross,Filled,Filled,Cross,Cross,Filled,Cross])",
+        Std.string( f(
+            [
+              [3,2,1],
+              [Blank,Blank,Blank,Blank,Filled,Filled,Blank,Blank,Filled,Blank]
+            ]
+        )));
+
+    assertEquals(
+        "Some([Blank,Blank,Blank,Cross,Filled,Filled,Cross,Cross,Cross,Filled,Cross])",
+        Std.string( f(
+            [
+              [3,2,1],
+              [Blank,Blank,Blank,Blank,Filled,Filled,Blank,Blank,Blank,Filled,Blank]
+            ]
+        )));
+
+    assertEquals(
+        "Some([Blank,Blank,Blank,Blank,Filled,Filled,Blank,Blank,Blank,Cross,Filled,Cross])",
+        Std.string( f(
+            [
+              [3,2,1],
+              [Blank,Blank,Blank,Blank,Filled,Filled,Blank,Blank,Blank,Blank,Filled,Blank]
+            ]
+        )));
+
+  }
+
 }

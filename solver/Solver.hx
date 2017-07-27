@@ -112,6 +112,117 @@ class Solver {
 
   }
 
+  // [O___ を [OX__ に置換する
+  // 変更があった場合は、Some([...])で計算結果を返す
+  // 変更がなかった場合はNoneを返す
+  private function calcSmartCrossAndFill(_nums: Array<Int>, _list: Array<State>)
+    : Option<Array<State>>
+  {
+    var list = _list;
+    var orig_len = list.length;
+    var result = _list;
+    var nums = _nums;
+    var left = 0;
+    var right = 0;
+    var changed = false;
+    var ret = function(){
+      return if(changed) Some(result) else None;
+    }
+
+    while(true){
+      // trace("list: " + list);
+      var sh = simpleShrink(list, left);
+      right += (list.length - sh.list.length);
+      list = sh.list;
+      left = sh.left;
+
+      if(list.length == 0 || nums.length == 0){
+        return ret();
+      }
+
+      var gr = list.toGroups();
+      if(gr.length < 2){
+        return ret();
+      }
+
+      var gr_len = gr.length;
+      var first_num = nums[0];
+      var last_num = nums[nums.length-1];
+
+      // [O___ を [OX__ に置換する
+      if(
+          gr[0].isFilledGroup()
+          && gr[0].getCount() == first_num
+          && gr[1].isBlankGroup()
+        ){
+
+        result[left+first_num] = Cross;
+        list = list.slice(first_num + 1, list.length);
+        left += first_num + 1;
+        nums = nums.slice(1, nums.length);
+        // nums.shift();
+
+      // [_O___ を [XOX__ に置換する
+      }else if(
+          gr.length > 2
+          && gr[0].isBlankGroup()
+          && gr[0].getCount() <= first_num
+          && gr[1].isFilledGroup()
+          && gr[1].getCount() == first_num
+          && gr[2].isBlankGroup()
+        ){
+
+        var edge_count = gr[0].getCount();
+        for( i in left...(left+edge_count) ){
+          result[i] = Cross;
+        }
+        result[left + edge_count + first_num] = Cross;
+        list = list.slice(first_num + edge_count + 1, list.length);
+        left += first_num + edge_count + 1;
+        nums = nums.slice(1, nums.length);
+        // nums.shift();
+
+      // ___O] を __XO] に置換する
+      }else if(
+          gr[gr_len-1].isFilledGroup()
+          && gr[gr_len-1].getCount() == last_num
+          && gr[gr_len-2].isBlankGroup()
+        ){
+
+        result[orig_len - 1 - right - last_num] = Cross;
+        list = list.slice(0, list.length - last_num - 1);
+        right += last_num + 1;
+        nums = nums.slice(0, nums.length-1);
+        // nums.pop();
+
+      // ___O_] を __XOX] に置換する
+      }else if(
+          gr.length > 2
+          && gr[gr_len-1].isBlankGroup()
+          && gr[gr_len-1].getCount() <= last_num
+          && gr[gr_len-2].isFilledGroup()
+          && gr[gr_len-2].getCount() == last_num
+          && gr[gr_len-3].isBlankGroup()
+        ){
+
+        var edge_count = gr[gr_len-1].getCount();
+        for( i in (orig_len - right - edge_count)...(orig_len - right) ){
+          result[i] = Cross;
+        }
+        result[orig_len - 1 - right - last_num - edge_count] = Cross;
+        list = list.slice(0, list.length - last_num - edge_count - 1);
+        right += last_num + edge_count + 1;
+        nums = nums.slice(0, nums.length-1);
+        // nums.shift();
+
+      }else{
+        return ret();
+      }
+
+      changed = true;
+    }
+  }
+
   // 端の方の完成している数字のマスを検出し、その分縮めて返す
   private function smartShrink(_nums: Array<Int>, _list: Array<State>): SmartShrinkedList {
     var list = _list;
@@ -132,11 +243,11 @@ class Solver {
         return {list: list, left: left, nums: nums};
       }
 
-      var len = gr.length;
+      var gr_len = gr.length;
       var first_num = nums[0];
       var last_num = nums[nums.length-1];
 
-      // [XOX__ を [__ に短縮する
+      // [OX__ を [__ に短縮する
       if(
           gr[0].isFilledGroup()
           && gr[0].getCount() == first_num
@@ -149,14 +260,14 @@ class Solver {
         nums = nums.slice(1, nums.length);
         // nums.shift();
 
-      // __XOX] を __] に短縮する
+      // __XO] を __] に短縮する
       }else if(
-          gr[len-1].isFilledGroup()
-          && gr[len-1].getCount() == last_num
-          && gr[len-2].isCrossGroup()
+          gr[gr_len-1].isFilledGroup()
+          && gr[gr_len-1].getCount() == last_num
+          && gr[gr_len-2].isCrossGroup()
         ){
 
-        var cross_count = gr[len-2].getCount();
+        var cross_count = gr[gr_len-2].getCount();
         list = list.slice(0, list.length - last_num - cross_count);
         // left = left;
         nums = nums.slice(0, nums.length-1);
