@@ -20,6 +20,16 @@ class StateHelper {
     return Matrix.toNumbers(list);
   }
 
+  public static function toVisualString(list:Array<State>): String {
+    return list.map(function(state){
+      return switch(state){
+        case Blank: "_";
+        case Filled: "#";
+        case Cross: "/";
+      }
+    }).join("");
+  }
+
   public static function isFilledGroup(s:StateGroup){
     return switch s {
       case FilledGroup(_):

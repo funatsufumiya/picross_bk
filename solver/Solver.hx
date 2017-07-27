@@ -38,7 +38,12 @@ class Solver {
   private function calcSharedArea(nums: Array<Int>, row: Array<State>)
     : Option<Array<State>>
   {
-    // 数字が 0 ならばスキップ
+    // 数列が空であればスキップ
+    if(nums.length == 0){
+      return None;
+    }
+
+    // 数列が [0] ならばスキップ
     if(nums.length == 1 && nums[0] == 0){
       return None;
     }
@@ -110,6 +115,65 @@ class Solver {
       return None;
     }
 
+  }
+
+  // 端から、確定しているセルを発見して×付けを行う
+  private function smartCrossAndFill(): Bool {
+    var flag = false;
+    
+    for( y in 0...height ){
+      if(matrix.hasBlankInRow(y)){
+        var nums = problem.rows[y];
+        var row = matrix.row(y);
+        var result = calcSmartCrossAndFill(nums, row);
+        switch (result) {
+          case None:
+            continue;
+          case Some(list):
+            // trace("Some(list): " + list);
+            for( x in 0...width ){
+              if( matrix.get(x,y) != list[x] ){
+                matrix.set(x,y,list[x]);
+                flag = true;
+              }
+            }
+            if(flag){
+              trace("[row "+y+"] smart cross and fill");
+              trace("\n" + matrix.toString());
+              step += 1;
+            }
+            continue;
+        }
+      }
+    }
+
+    for( x in 0...width ){
+      if(matrix.hasBlankInColumn(x)){
+        var nums = problem.columns[x];
+        var column = matrix.column(x);
+        var result = calcSmartCrossAndFill(nums, column);
+        switch (result) {
+          case None:
+            continue;
+          case Some(list):
+            // trace("Some(list): " + list);
+            for( y in 0...height ){
+              if( matrix.get(x,y) != list[y] ){
+                matrix.set(x,y,list[y]);
+                flag = true;
+              }
+            }
+            if(flag){
+              trace("[col "+x+"] smart cross and fill");
+              trace("\n" + matrix.toString());
+              step += 1;
+            }
+            continue;
+        }
+      }
+    }
+
+    return flag;
   }
 
   // [O___ を [OX__ に置換する
@@ -301,6 +365,84 @@ class Solver {
     }
   }
 
+  // 端から確定したセルの分だけ縮小、×付けを行い、行・列の数字の共通部分を塗りつぶす
+  // 変更があった場合は true, なかった場合は false を返す
+  private function smartShrinkingSharedAreaMethod(): Bool {
+    var flag = false;
+    
+    for( y in 0...height ){
+      if(matrix.hasBlankInRow(y)){
+        var nums = problem.rows[y];
+        var row = matrix.row(y);
+        // ここで一度行を縮小する
+        var shrinked = smartShrink(nums, row);
+        var left = shrinked.left;
+        // if(!shrinked.list.hasBlank()){
+        //   continue;
+        // }
+        // 共通部分を計算
+        var result = calcSharedArea(shrinked.nums, shrinked.list);
+        switch (result) {
+          case None:
+            continue;
+          case Some(list):
+            // 共通部分の塗りを実際に反映する
+            for( x in left...(shrinked.list.length + left) ){
+              matrix.set(x,y,list[x-left]);
+            }
+            if(row.length == shrinked.list.length){
+              trace("[row "+y+"] smart shared area method");
+            }else{
+              trace("[row "+y+"] smart shrinking shared area method");
+            }
+            trace("\n" + matrix.toString());
+            flag = true;
+            step += 1;
+            continue;
+        }
+      }
+    }
+
+    for( x in 0...width ){
+      if(matrix.hasBlankInColumn(x)){
+        var nums = problem.columns[x];
+        var column = matrix.column(x);
+        var shrinked = smartShrink(nums, column);
+        var left = shrinked.left;
+        // if(!shrinked.list.hasBlank()){
+        //   continue;
+        // }
+        var result = calcSharedArea(shrinked.nums, shrinked.list);
+        switch (result) {
+          case None:
+            continue;
+          case Some(list):
+            // trace("Some(list): " + list);
+            for( y in left...(list.length + left) ){
+              matrix.set(x,y,list[y-left]);
+            }
+            if(column.length == shrinked.list.length){
+              trace("[col "+x+"] smart shared area method");
+            }else{
+              trace("[col "+x+"] smart shrinking shared area method");
+            }
+            trace("\n" + matrix.toString());
+            flag = true;
+            step += 1;
+            // trace("nums: "+nums);
+            // trace("column: "+column);
+            // trace("shrinked: "+shrinked);
+            // trace("list: "+list);
+            // trace("shrinked.list.length: "+shrinked.list.length);
+            // trace("list.length: "+list.length);
+            continue;
+        }
+      }
+    }
+
+    return flag;
+  }
+
   // 端にある×の分だけ縮小し、行・列の数字の共通部分を塗りつぶす
   // 変更があった場合は true, なかった場合は false を返す
   private function simpleShrinkingSharedAreaMethod(): Bool {
@@ -477,6 +619,28 @@ class Solver {
     return flag;
   }
 
+  // // 問題を解く(単純法)
+  // public function solveSimple(): Option<Matrix>{
+  //   matrix = new Matrix(width, height);
+  //
+  //   step = 0;
+  //   while(matrix.hasBlank()){
+  //     if(
+  //         !simpleShrinkingSharedAreaMethod()
+  //         && !checkFixedAndCross()
+  //       ){
+  //       trace("失敗 (" + step + " steps)");
+  //       trace("rows: " + problem.rows);
+  //       trace("columns: " + problem.columns);
+  //       return None; // 失敗
+  //     }
+  //     // trace("\n" + matrix.toString());
+  //   }
+  //
+  //   trace("成功 (" + step + " steps)");
+  //   return Some(matrix); // 成功
+  // }
+
   // 問題を解く
   public function solve(): Option<Matrix>{
     matrix = new Matrix(width, height);
@@ -484,7 +648,8 @@ class Solver {
     step = 0;
     while(matrix.hasBlank()){
       if(
-          !simpleShrinkingSharedAreaMethod()
+          !smartShrinkingSharedAreaMethod()
+          && !smartCrossAndFill()
           && !checkFixedAndCross()
         ){
         trace("失敗 (" + step + " steps)");
