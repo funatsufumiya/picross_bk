@@ -10,6 +10,8 @@ class Matrix {
   private var width: Int;
   private var height: Int;
 
+  public var isChanged = false;
+
   public function new(width: Int, height: Int){
     this.width = width;
     this.height = height;
@@ -28,6 +30,9 @@ class Matrix {
   }
 
   public function set(x:Int, y:Int, v:State){
+    if(matrix[y][x] != v){
+      isChanged = true;
+    }
     return matrix[y][x] = v;
   }
 

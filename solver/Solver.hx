@@ -695,21 +695,24 @@ class Solver {
 
     step = 0;
     while(matrix.hasBlank()){
-      if(
-          !smartShrinkingSharedAreaMethod()
-          && !smartCrossAndFill()
-          && !checkFixedAndCross()
-        ){
 
-        // WORKAROUND: なぜか完成しているのに失敗となる場合があるので
-        if( isCompleted() ){
-          break;
-        }
+      matrix.isChanged = false;
+
+      smartShrinkingSharedAreaMethod();
+      smartCrossAndFill();
+      checkFixedAndCross();
+
+      if( isCompleted() ){
+        break;
+      }
+
+      if( matrix.isChanged == false ){
         trace("失敗 (" + step + " steps)");
         trace("rows: " + problem.rows);
         trace("columns: " + problem.columns);
         return None; // 失敗
       }
+
       // trace("\n" + matrix.toString());
     }
 
