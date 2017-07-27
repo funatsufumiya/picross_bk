@@ -38,8 +38,6 @@ class Solver {
   private function calcSharedArea(nums: Array<Int>, row: Array<State>)
     : Option<Array<State>>
   {
-    // Noneを返す場合は変更なし、Someを返す場合は変更あり
-    
     // 数字が 0 ならばスキップ
     if(nums.length == 1 && nums[0] == 0){
       return None;
