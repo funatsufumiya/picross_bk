@@ -5,8 +5,8 @@ using Lambda;
 using ArrayHelper;
 using StateHelper;
 
-typedef ShrinkedList = { list: Array<State>, left: Int }
-typedef SmartShrinkedList = { list: Array<State>, left: Int, nums: Array<Int> }
+typedef ListWithOffset = { list: Array<State>, left: Int }
+typedef ListWithOffsetAndNums = { list: Array<State>, left: Int, nums: Array<Int> }
 
 class Solver {
   private var problem: Problem;
@@ -115,6 +115,44 @@ class Solver {
       return None;
     }
 
+  }
+
+  // Xによってリストを分割し、オフセットを付加して返す
+  private function splitByCross(_list: Array<State>): Array<ListWithOffset> {
+    var sh = simpleShrink(_list);
+    var list = sh.list;
+    var left = sh.left;
+
+    var start = 0;
+    var retList: Array<ListWithOffset> = [];
+    var gr = list.toGroups();
+    
+    function count(gr:Array<StateGroup>){
+      var n = 0;
+      for( sg in gr ){
+        n += sg.getCount();
+      }
+      return n;
+    }
+
+    function ret(_gr:Array<StateGroup>, _ls:Array<State>, _start:Int, _end:Int){
+      var edge_gr = _gr.slice(0,_start);
+      var sub_gr = _gr.slice(0,_end+1);
+      var _left = count(edge_gr);
+      var len = count(sub_gr);
+      return { left: left + _left, list: _ls.slice(_left, len) };
+    }
+
+    for( i in 0...gr.length ){
+      if(gr[i].isCrossGroup()){
+        retList.push(ret(gr, list, start, i-1));
+        start = i+1;
+      }
+    }
+
+    retList.push(ret(gr, list, start, gr.length-1));
+
+    return retList;
   }
 
   // 端から、確定しているセルを発見して×付けを行う
@@ -320,7 +358,7 @@ class Solver {
   }
 
   // 端の方の完成している数字のマスを検出し、その分縮めて返す
-  private function smartShrink(_nums: Array<Int>, _list: Array<State>): SmartShrinkedList {
+  private function smartShrink(_nums: Array<Int>, _list: Array<State>): ListWithOffsetAndNums {
     var list = _list;
     var nums = _nums;
     var left = 0;
@@ -377,7 +415,7 @@ class Solver {
 
   // 両端にある×を検出し、その分を縮小して返す。
   // 左(上)からどれだけ縮小されたかを、left、結果をlistに格納する。
-  private function simpleShrink(_list: Array<State>, left_offset = 0): ShrinkedList {
+  private function simpleShrink(_list: Array<State>, left_offset = 0): ListWithOffset {
     var list = _list;
     var left = left_offset;
 

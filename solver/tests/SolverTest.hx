@@ -349,4 +349,41 @@ class SolverTest extends TestCase {
         )));
   }
 
+  public function test_splitByCross(){
+    var solver = new Solver();
+    var f = Reflect.callMethod.bind(solver,Reflect.field(solver, "splitByCross"),_);
+
+    assertEquals(
+        "[{left: 0,list: [Blank,Blank]},{left: 3,list: [Blank,Blank]}]",
+        Std.string( f(
+            [
+              [Blank,Blank,Cross,Blank,Blank]
+            ]
+        )));
+
+    assertEquals(
+        "[{left: 0,list: [Blank,Blank]},{left: 5,list: [Blank,Blank]}]",
+        Std.string( f(
+            [
+              [Blank,Blank,Cross,Cross,Cross,Blank,Blank]
+            ]
+        )));
+
+    assertEquals(
+        "[{left: 1,list: [Blank,Blank]},{left: 6,list: [Blank,Blank]}]",
+        Std.string( f(
+            [
+              [Cross,Blank,Blank,Cross,Cross,Cross,Blank,Blank,Cross]
+            ]
+        )));
+
+    assertEquals(
+        "[{left: 1,list: [Blank,Filled]},{left: 4,list: [Blank]},{left: 6,list: [Blank,Blank]}]",
+        Std.string( f(
+            [
+              [Cross,Blank,Filled,Cross,Blank,Cross,Blank,Blank,Cross]
+            ]
+        )));
+  }
+
 }
