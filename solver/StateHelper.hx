@@ -30,6 +30,24 @@ class StateHelper {
     }).join("");
   }
 
+  public static function hasBlank(list:Array<State>): Bool {
+    for( s in list ){
+      if( Type.enumEq(s, Blank) ){
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public static function hasFilled(list:Array<State>): Bool {
+    for( s in list ){
+      if( Type.enumEq(s, Filled) ){
+        return true;
+      }
+    }
+    return false;
+  }
+
   public static function isFilledGroup(s:StateGroup){
     return switch s {
       case FilledGroup(_):

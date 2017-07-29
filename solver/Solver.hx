@@ -117,6 +117,146 @@ class Solver {
 
   }
 
+  // Xによってリストを分割し、可能な限り×付けや塗りを行う
+  private function splitByCrossAndFill(){
+    var flag = false;
+    var flag_line = false;
+
+    for( y in 0...height ){
+      if(matrix.hasBlankInRow(y)){
+        var nums = problem.rows[y];
+        var row = matrix.row(y);
+        var result = calcSplitByCrossAndFill(nums, row);
+        switch (result) {
+          case None:
+            continue;
+          case Some(list):
+            // trace("Some(list): " + list);
+            flag_line = false;
+            for( x in 0...width ){
+              if( matrix.get(x,y) != list[x] ){
+                matrix.set(x,y,list[x]);
+                flag = true;
+                flag_line = true;
+              }
+            }
+            if(flag_line){
+              trace("[row "+y+"] split by cross, and fill");
+              trace("\n" + matrix.toString());
+              step += 1;
+            }
+            continue;
+        }
+      }
+    }
+
+    for( x in 0...width ){
+      if(matrix.hasBlankInColumn(x)){
+        var nums = problem.columns[x];
+        var column = matrix.column(x);
+        var result = calcSplitByCrossAndFill(nums, column);
+        switch (result) {
+          case None:
+            continue;
+          case Some(list):
+            // trace("Some(list): " + list);
+            flag_line = false;
+            for( y in 0...height ){
+              if( matrix.get(x,y) != list[y] ){
+                matrix.set(x,y,list[y]);
+                flag = true;
+                flag_line = true;
+              }
+            }
+            if(flag_line){
+              trace("[col "+x+"] split by cross, and fill");
+              trace("\n" + matrix.toString());
+              step += 1;
+            }
+            continue;
+        }
+      }
+    }
+
+    return flag;
+  }
+
+  // Xによってリストを分割し、可能な限り×付けや塗りを行って返す
+  private function calcSplitByCrossAndFill(_nums: Array<Int>, _list: Array<State>)
+    : Option<Array<State>> {
+
+    // 分割
+    var splitted = splitByCross(_list);
+    // 塗りがあるブロックの数をカウント
+    var filled_count = splitted.filter(function(lwo){
+      return lwo.list.hasFilled();
+    }).length;
+
+    var list = _list.slice(0, _list.length);
+
+    // 分割数 == 数字の数 ならば
+    if( splitted.length == _nums.length ){
+      for( i in 0...splitted.length ){
+        var lwo = splitted[i];
+        var left = lwo.left;
+        var num = _nums[i];
+
+        // それぞれで共通部分を塗る
+        // trace("nums (part): " + [num]);
+        // trace("list (part): " + lwo.list);
+        var result = calcSharedArea([num], lwo.list);
+        switch (result) {
+          case None:
+            continue;
+          case Some(ls):
+            for( i in 0...ls.length ){
+              list[left+i] = ls[i];
+            }
+        }
+      }
+
+      return Some(list);
+
+    // 塗りのあるブロックの数 == 数字の数 ならば
+    }else if( filled_count == _nums.length ){
+      var filled_index = 0;
+      for( i in 0...splitted.length ){
+        var lwo = splitted[i];
+        var left = lwo.left;
+        var num = _nums[filled_index];
+
+        // 塗りがあるブロックなら
+        if( lwo.list.hasFilled() ){
+          // そのブロックの共通部分を塗る
+          // trace("nums (part): " + [num]);
+          // trace("list (part): " + lwo.list);
+          var result = calcSharedArea([num], lwo.list);
+          switch (result) {
+            case None:
+              continue;
+            case Some(ls):
+              for( i in 0...ls.length ){
+                list[left+i] = ls[i];
+              }
+          }
+
+          filled_index += 1;
+
+        // 塗りのないブロックなら
+        }else{
+          // Xで埋める
+          for( i in 0...lwo.list.length ){
+            list[left+i] = Cross;
+          }
+        }
+      }
+
+      return Some(list);
+    }
+
+    return None;
+  }
+
   // Xによってリストを分割し、オフセットを付加して返す
   private function splitByCross(_list: Array<State>): Array<ListWithOffset> {
     var sh = simpleShrink(_list);
@@ -127,6 +267,7 @@ class Solver {
     var retList: Array<ListWithOffset> = [];
     var gr = list.toGroups();
     
+    // inner functions
     function count(gr:Array<StateGroup>){
       var n = 0;
       for( sg in gr ){
@@ -142,6 +283,7 @@ class Solver {
       var len = count(sub_gr);
       return { left: left + _left, list: _ls.slice(_left, len) };
     }
+    // End of inner functions
 
     for( i in 0...gr.length ){
       if(gr[i].isCrossGroup()){
@@ -158,6 +300,7 @@ class Solver {
   // 端から、確定しているセルを発見して×付けを行う
   private function smartCrossAndFill(): Bool {
     var flag = false;
+    var flag_line = false;
     
     for( y in 0...height ){
       if(matrix.hasBlankInRow(y)){
@@ -169,13 +312,15 @@ class Solver {
             continue;
           case Some(list):
             // trace("Some(list): " + list);
+            flag_line = false;
             for( x in 0...width ){
               if( matrix.get(x,y) != list[x] ){
                 matrix.set(x,y,list[x]);
                 flag = true;
+                flag_line = true;
               }
             }
-            if(flag){
+            if(flag_line){
               trace("[row "+y+"] smart cross and fill");
               trace("\n" + matrix.toString());
               step += 1;
@@ -195,13 +340,15 @@ class Solver {
             continue;
           case Some(list):
             // trace("Some(list): " + list);
+            flag_line = false;
             for( y in 0...height ){
               if( matrix.get(x,y) != list[y] ){
                 matrix.set(x,y,list[y]);
                 flag = true;
+                flag_line = true;
               }
             }
-            if(flag){
+            if(flag_line){
               trace("[col "+x+"] smart cross and fill");
               trace("\n" + matrix.toString());
               step += 1;
@@ -738,6 +885,7 @@ class Solver {
 
       smartShrinkingSharedAreaMethod();
       smartCrossAndFill();
+      splitByCrossAndFill();
       checkFixedAndCross();
 
       if( isCompleted() ){

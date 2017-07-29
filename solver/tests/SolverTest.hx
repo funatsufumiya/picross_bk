@@ -354,6 +354,22 @@ class SolverTest extends TestCase {
     var f = Reflect.callMethod.bind(solver,Reflect.field(solver, "splitByCross"),_);
 
     assertEquals(
+        "[{left: 0,list: [Blank,Blank]}]",
+        Std.string( f(
+            [
+              [Blank,Blank]
+            ]
+        )));
+
+    assertEquals(
+        "[{left: 0,list: [Blank,Blank,Filled]}]",
+        Std.string( f(
+            [
+              [Blank,Blank,Filled]
+            ]
+        )));
+
+    assertEquals(
         "[{left: 0,list: [Blank,Blank]},{left: 3,list: [Blank,Blank]}]",
         Std.string( f(
             [
@@ -384,6 +400,40 @@ class SolverTest extends TestCase {
               [Cross,Blank,Filled,Cross,Blank,Cross,Blank,Blank,Cross]
             ]
         )));
+  }
+
+
+  public function test_calcSplitByCrossAndFill(){
+    var solver = new Solver();
+    var f = Reflect.callMethod.bind(solver,Reflect.field(solver, "calcSplitByCrossAndFill"),_);
+
+    assertEquals(
+        "Some([Filled,Filled,Cross,Filled,Filled])",
+        Std.string( f(
+            [
+              [2,2],
+              [Blank,Blank,Cross,Blank,Blank]
+            ]
+        )));
+
+    assertEquals(
+        "Some([Cross,Cross,Cross,Cross,Blank,Filled,Filled,Blank])",
+        Std.string( f(
+            [
+              [3],
+              [Blank,Blank,Blank,Cross,Blank,Blank,Filled,Blank]
+            ]
+        )));
+
+    assertEquals(
+        "Some([Filled,Filled,Cross,Cross,Cross,Cross,Filled,Filled])",
+        Std.string( f(
+            [
+              [2,2],
+              [Blank,Filled,Cross,Blank,Blank,Cross,Filled,Blank]
+            ]
+        )));
+
   }
 
 }
