@@ -48,6 +48,25 @@ class StateHelper {
     return false;
   }
 
+  public static function mostLeftFilledIndex(list:Array<State>): Int {
+    for( i in 0...list.length ){
+      if( Type.enumEq(list[i], Filled) ){
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  public static function mostRightFilledIndex(list:Array<State>): Int {
+    var i = list.length;
+    while(--i >= 0){
+      if( Type.enumEq(list[i], Filled) ){
+        return i;
+      }
+    }
+    return -1;
+  }
+
   public static function isFilledGroup(s:StateGroup){
     return switch s {
       case FilledGroup(_):

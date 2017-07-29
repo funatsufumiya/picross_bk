@@ -117,6 +117,61 @@ class Solver {
 
   }
 
+  // 届かないセルに×をつけ、塗り部分を統合する
+  private function calcUnreachableAndMergeFilled(_nums: Array<Int>, _list: Array<State>)
+    : Array<State>
+  {
+    // 数が１つのときは、届かないセルにバツを付ける
+    if(_nums.length == 1 && _list.hasBlank() && _list.hasFilled()){
+      var list = _list.slice(0, _list.length);
+      var left = list.mostLeftFilledIndex(); 
+      var right = list.mostRightFilledIndex(); 
+      var w = right - left + 1;
+
+      // 塗られているセル数と、数字の差を計算
+      var diff = _nums[0] - w;
+
+      // 塗られているセルが分散していれば、間の空白を塗る
+      for( i in left...(right+1) ){
+        if(Type.enumEq(list[i], Blank)){
+          list[i] = Filled;
+        }
+      }
+
+      // 左の方の届かないセルに×をつける
+      var c = 0;
+      var i = left;
+      while(--i >= 0){
+        // trace("i: " + i);
+        // trace("c: " + c);
+        if(c >= diff){
+          list[i] = Cross;
+        }
+        ++c;
+      }
+
+      // 右の方の届かないセルに×をつける
+      var c = 0;
+      var i = right;
+      while(++i < list.length){
+        // trace("i: " + i);
+        // trace("c: " + c);
+        if(c >= diff){
+          list[i] = Cross;
+        }
+        ++c;
+      }
+
+      return list;
+    
+    // 数が２つ以上のとき
+    }else{
+      // TODO: 現状のアルゴリズムでは計算できない
+      return _list;
+    }
+
+  }
+
   // Xによってリストを分割し、可能な限り×付けや塗りを行う
   private function splitByCrossAndFill(){
     var flag = false;
@@ -201,17 +256,21 @@ class Solver {
         var left = lwo.left;
         var num = _nums[i];
 
-        // それぞれで共通部分を塗る
-        // trace("nums (part): " + [num]);
-        // trace("list (part): " + lwo.list);
+        // それぞれの共通部分を塗る
         var result = calcSharedArea([num], lwo.list);
         switch (result) {
           case None:
-            continue;
           case Some(ls):
             for( i in 0...ls.length ){
               list[left+i] = ls[i];
+              lwo.list[i] = ls[i];
             }
+        }
+        
+        // 到達しない部分に×をつけ、塗りを統合する
+        var l = calcUnreachableAndMergeFilled([num], lwo.list);
+        for( i in 0...l.length ){
+          list[left+i] = l[i];
         }
       }
 
@@ -228,16 +287,20 @@ class Solver {
         // 塗りがあるブロックなら
         if( lwo.list.hasFilled() ){
           // そのブロックの共通部分を塗る
-          // trace("nums (part): " + [num]);
-          // trace("list (part): " + lwo.list);
           var result = calcSharedArea([num], lwo.list);
           switch (result) {
             case None:
-              continue;
             case Some(ls):
               for( i in 0...ls.length ){
                 list[left+i] = ls[i];
+                lwo.list[i] = ls[i];
               }
+          }
+
+          // 到達しない部分に×をつけ、塗りを統合する
+          var l = calcUnreachableAndMergeFilled([num], lwo.list);
+          for( i in 0...l.length ){
+            list[left+i] = l[i];
           }
 
           filled_index += 1;

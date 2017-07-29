@@ -402,7 +402,6 @@ class SolverTest extends TestCase {
         )));
   }
 
-
   public function test_calcSplitByCrossAndFill(){
     var solver = new Solver();
     var f = Reflect.callMethod.bind(solver,Reflect.field(solver, "calcSplitByCrossAndFill"),_);
@@ -434,6 +433,47 @@ class SolverTest extends TestCase {
             ]
         )));
 
+  }
+
+  public function test_calcUnreachableAndMergeFilled(){
+    var solver = new Solver();
+    var f = Reflect.callMethod.bind(solver,Reflect.field(solver, "calcUnreachableAndMergeFilled"),_);
+
+    assertEquals(
+        "[Blank,Filled,Blank,Cross,Cross]",
+        Std.string( f(
+            [
+              [2],
+              [Blank,Filled,Blank,Blank,Blank]
+            ]
+        )));
+
+    assertEquals(
+        "[Cross,Blank,Filled,Filled,Blank,Cross,Cross]",
+        Std.string( f(
+            [
+              [3],
+              [Blank,Blank,Filled,Filled,Blank,Blank,Blank]
+            ]
+        )));
+
+    assertEquals(
+        "[Cross,Cross,Filled,Filled,Filled,Cross,Cross]",
+        Std.string( f(
+            [
+              [3],
+              [Blank,Blank,Filled,Blank,Filled,Blank,Blank]
+            ]
+        )));
+
+    assertEquals(
+        "[Cross,Cross,Filled,Filled,Filled,Cross,Cross]",
+        Std.string( f(
+            [
+              [3],
+              [Blank,Blank,Filled,Filled,Filled,Blank,Blank]
+            ]
+        )));
   }
 
 }
