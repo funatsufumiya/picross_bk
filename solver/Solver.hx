@@ -59,6 +59,7 @@ class Solver {
     // trace("first_num: " + first_num);
     // trace("rest_nums: " + rest_nums);
     // trace("nums: " + nums);
+    // trace("row: " + row.toVisualString());
     // trace("sum: " + sum);
     // trace("--");
 
@@ -251,6 +252,15 @@ class Solver {
 
     // 分割数 == 数字の数 ならば
     if( splitted.length == _nums.length ){
+      
+      // 数字と対応した分割かどうかチェック
+      for( i in 0...splitted.length ){
+        // 対応していない (ブロックの幅 < 数字)
+        if( splitted[i].list.length < _nums[i] ){
+          return None;
+        }
+      }
+
       for( i in 0...splitted.length ){
         var lwo = splitted[i];
         var left = lwo.left;
