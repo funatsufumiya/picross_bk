@@ -307,6 +307,7 @@ class Solver {
         }
 
         // ２つ以上の数字が入ってしまうブロックがないかチェック
+        // FIXME: 本当にこれだけで十分な例外チェックになっているのか…
 
         var filt_sp = splitted.slice(0, splitted.length);
         var filt_nums = _nums.slice(0, _nums.length);
