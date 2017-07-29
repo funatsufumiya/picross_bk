@@ -372,6 +372,21 @@ class SolverTest extends TestCase {
               ,Cross,Cross,Blank,Blank,Blank]
             ]
         )));
+
+    // [_//__ _/### ##### ##### ###__]
+
+    assertEquals(
+        "Some([Cross,Cross,Cross,Blank,Blank,Blank,Cross,Filled,Filled,Filled,Filled,Filled,Filled,Filled,Filled,Filled,Filled,Filled,Filled,Filled,Filled,Filled,Filled,Blank,Blank])",
+        Std.string( f(
+            [
+              [2,8],
+              [Blank,Cross,Cross,Blank,Blank
+              ,Blank,Cross,Filled,Filled,Filled
+              ,Filled,Filled,Filled,Filled,Filled
+              ,Filled,Filled,Filled,Filled,Filled
+              ,Filled,Filled,Filled,Blank,Blank]
+            ]
+        )));
   }
 
   public function test_splitByCross(){

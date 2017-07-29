@@ -100,6 +100,12 @@ class Solver {
         // fill_first から fill_last までを共通部分として塗りつぶす
         if(diff_num > 0){
           for( j in fill_first...fill_last ){
+            if(j < 0){
+              trace("Error on calcSharedArea !!");
+              trace("nums: " + nums);
+              trace("row: " + row.toVisualString());
+              Sys.exit(1);
+            }
             dots[j] = Filled;
           }
           // trace("dots: " + dots);
@@ -592,7 +598,7 @@ class Solver {
         }
         list = list.slice(edge_count + 1, list.length);
         left += edge_count + 1;
-        nums = nums.slice(1, nums.length);
+        // nums = nums.slice(1, nums.length);
         // nums.shift();
 
       // ___O] を __XO] に置換する
@@ -641,7 +647,7 @@ class Solver {
         result[orig_len - right - edge_count] = Cross;
         list = list.slice(0, list.length - edge_count - 1);
         right += edge_count + 1;
-        nums = nums.slice(0, nums.length-1);
+        // nums = nums.slice(0, nums.length-1);
         // nums.shift();
 
       }else{
