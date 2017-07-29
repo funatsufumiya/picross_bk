@@ -270,7 +270,9 @@ class Solver {
         // 到達しない部分に×をつけ、塗りを統合する
         var l = calcUnreachableAndMergeFilled([num], lwo.list);
         for( i in 0...l.length ){
-          list[left+i] = l[i];
+          // if(!Type.enumEq(list[left+i], l[i])){
+            list[left+i] = l[i];
+          // }
         }
       }
 
@@ -374,7 +376,8 @@ class Solver {
           case None:
             continue;
           case Some(list):
-            // trace("Some(list): " + list);
+            trace("list: " + list);
+            trace("row: " + row);
             flag_line = false;
             for( x in 0...width ){
               if( matrix.get(x,y) != list[x] ){
@@ -402,7 +405,6 @@ class Solver {
           case None:
             continue;
           case Some(list):
-            // trace("Some(list): " + list);
             flag_line = false;
             for( y in 0...height ){
               if( matrix.get(x,y) != list[y] ){
@@ -430,10 +432,10 @@ class Solver {
   private function calcSmartCrossAndFill(_nums: Array<Int>, _list: Array<State>)
     : Option<Array<State>>
   {
-    var list = _list;
+    var list = _list.slice(0, _list.length);
     var orig_len = list.length;
-    var result = _list;
-    var nums = _nums;
+    var result = _list.slice(0, _list.length);
+    var nums = _nums.slice(0, _nums.length);
     var left = 0;
     var right = 0;
     var changed = false;
@@ -443,7 +445,7 @@ class Solver {
 
     while(true){
       var sh = simpleShrink(list, left);
-      right += (list.length - sh.list.length) - sh.left;
+      right = (_list.length - sh.list.length) - sh.left;
       list = sh.list;
       left = sh.left;
 
@@ -515,7 +517,6 @@ class Solver {
           && gr[gr_len-1].getCount() == last_num
           && gr[gr_len-2].isBlankGroup()
         ){
-
         result[orig_len - 1 - right - last_num] = Cross;
         list = list.slice(0, list.length - last_num - 1);
         right += last_num + 1;
@@ -563,14 +564,17 @@ class Solver {
         return ret();
       }
 
+      // trace("_list: " + _list);
+      // trace("list: " + list);
+
       changed = true;
     }
   }
 
   // 端の方の完成している数字のマスを検出し、その分縮めて返す
   private function smartShrink(_nums: Array<Int>, _list: Array<State>): ListWithOffsetAndNums {
-    var list = _list;
-    var nums = _nums;
+    var list = _list.slice(0, _list.length);
+    var nums = _nums.slice(0, _nums.length);
     var left = 0;
 
     while(true){
@@ -699,7 +703,9 @@ class Solver {
           case Some(list):
             // trace("Some(list): " + list);
             for( y in left...(list.length + left) ){
-              matrix.set(x,y,list[y-left]);
+              if( !Type.enumEq( matrix.get(x,y), list[y-left] ) ){
+                matrix.set(x,y,list[y-left]);
+              }
             }
             if(column.length == shrinked.list.length){
               trace("[col "+x+"] smart shared area method");

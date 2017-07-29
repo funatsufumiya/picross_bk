@@ -347,6 +347,15 @@ class SolverTest extends TestCase {
               Cross,Cross,Cross,Blank,Cross]
             ]
         )));
+
+    assertEquals(
+        "Some([Filled,Cross,Blank,Cross,Filled])",
+        Std.string( f(
+            [
+              [1,1],
+              [Filled,Blank,Blank,Blank,Filled]
+            ]
+        )));
   }
 
   public function test_splitByCross(){
