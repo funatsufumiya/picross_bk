@@ -254,58 +254,8 @@ class Solver {
 
     var list = _list.slice(0, _list.length);
 
-    // 分割数 == 数字の数 ならば
-    if( splitted.length == _nums.length ){
-
-      var sum = _nums.fold(function(n, num){
-        return n + num;
-      }, 0);
-      
-      // 数字と対応した分割かどうかチェック
-      if( _nums.length > 1 ){
-        for( i in 0...splitted.length ){
-          // 対応していない (ブロックの幅 < 数字)
-          if( splitted[i].list.length < _nums[i] ){
-            return None;
-          }
-
-          // ２つ以上の数字が入る余地がある
-          // FIXME: これではミスを回避するのに完全ではない
-          if( splitted[i].list.length > sum ){
-            return None;
-          }
-        }
-      }
-
-      for( i in 0...splitted.length ){
-        var lwo = splitted[i];
-        var left = lwo.left;
-        var num = _nums[i];
-
-        // それぞれの共通部分を塗る
-        var result = calcSharedArea([num], lwo.list);
-        switch (result) {
-          case None:
-          case Some(ls):
-            for( i in 0...ls.length ){
-              list[left+i] = ls[i];
-              lwo.list[i] = ls[i];
-            }
-        }
-        
-        // 到達しない部分に×をつけ、塗りを統合する
-        var l = calcUnreachableAndMergeFilled([num], lwo.list);
-        for( i in 0...l.length ){
-          // if(!Type.enumEq(list[left+i], l[i])){
-            list[left+i] = l[i];
-          // }
-        }
-      }
-
-      return Some(list);
-
     // 塗りのあるブロックの数 == 数字の数 ならば
-    }else if( filled_count == _nums.length ){
+    if( filled_count == _nums.length ){
       var filled_index = 0;
       for( i in 0...splitted.length ){
         var lwo = splitted[i];
@@ -339,6 +289,89 @@ class Solver {
           for( i in 0...lwo.list.length ){
             list[left+i] = Cross;
           }
+        }
+      }
+
+      return Some(list);
+
+    // 分割数 == 数字の数 ならば
+    }else if( splitted.length == _nums.length ){
+ 
+      // 数字と対応した分割かどうかチェック
+      if( _nums.length > 1 ){
+        for( i in 0...splitted.length ){
+          // 対応していない (ブロックの幅 < 数字)
+          if( splitted[i].list.length < _nums[i] ){
+            return None;
+          }
+        }
+
+        // ２つ以上の数字が入ってしまうブロックがないかチェック
+
+        var filt_sp = splitted.slice(0, splitted.length);
+        var filt_nums = _nums.slice(0, _nums.length);
+
+        while(true){
+          if( filt_sp.length > 0 && filt_nums.length > 1){
+
+            if( filt_sp[0].list.length
+                >= filt_nums[0] + filt_nums[1] + 1 ){
+              return None;
+            }else{
+              filt_sp = filt_sp.slice(1, filt_sp.length);
+              filt_nums = filt_nums.slice(1, filt_nums.length);
+              continue;
+            }
+            
+            if( filt_sp[filt_sp.length-1].list.length
+                >= filt_nums[filt_nums.length-1] + filt_nums[filt_nums.length-2] + 1){
+              return None;
+            }else{
+              filt_sp = filt_sp.slice(0, filt_sp.length-1);
+              filt_nums = filt_nums.slice(0, filt_nums.length-1);
+              continue;
+            }
+
+          }else{
+            break;
+          }
+        }
+
+        var sum = filt_nums.fold(function(n, num){
+          return n + num;
+        }, 0);
+
+        for( i in 0...filt_sp.length ){
+          if( filt_sp[i].list.length > sum ){
+            return None;
+          }
+        }
+      }
+
+      // チェック完了したら、塗り作業に入る
+
+      for( i in 0...splitted.length ){
+        var lwo = splitted[i];
+        var left = lwo.left;
+        var num = _nums[i];
+
+        // それぞれの共通部分を塗る
+        var result = calcSharedArea([num], lwo.list);
+        switch (result) {
+          case None:
+          case Some(ls):
+            for( i in 0...ls.length ){
+              list[left+i] = ls[i];
+              lwo.list[i] = ls[i];
+            }
+        }
+        
+        // 到達しない部分に×をつけ、塗りを統合する
+        var l = calcUnreachableAndMergeFilled([num], lwo.list);
+        for( i in 0...l.length ){
+          // if(!Type.enumEq(list[left+i], l[i])){
+            list[left+i] = l[i];
+          // }
         }
       }
 
