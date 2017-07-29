@@ -338,13 +338,15 @@ class SolverTest extends TestCase {
         )));
 
     assertEquals(
-        "Some([Cross,Filled,Filled,Filled,Filled,Filled,Filled,Filled,Filled,Cross,Cross,Cross,Cross,Cross,Cross])",
+        // "Some([Cross,Filled,Filled,Filled,Filled,Filled,Filled,Filled,Filled,Cross,Cross,Cross,Cross,Cross,Cross])",
+        "None",
         Std.string( f(
             [
               [8],
               [Cross,Filled,Filled,Filled,Filled,
               Filled,Filled,Filled,Filled,Cross,
               Cross,Cross,Cross,Blank,Cross]
+              // /########////_/
             ]
         )));
 
@@ -354,6 +356,20 @@ class SolverTest extends TestCase {
             [
               [1,1],
               [Filled,Blank,Blank,Blank,Filled]
+            ]
+        )));
+
+    // [4,1,1,3]
+    // [ ####/ #_/__ _//__ //### ]
+    assertEquals(
+        "Some([Filled,Filled,Filled,Filled,Cross,Filled,Cross,Cross,Blank,Blank,Blank,Cross,Cross,Blank,Blank,Cross,Cross,Blank,Blank,Blank])",
+        Std.string( f(
+            [
+              [4,1,1,3],
+              [Filled,Filled,Filled,Filled,Cross
+              ,Filled,Blank,Cross,Blank,Blank
+              ,Blank,Cross,Cross,Blank,Blank
+              ,Cross,Cross,Blank,Blank,Blank]
             ]
         )));
   }

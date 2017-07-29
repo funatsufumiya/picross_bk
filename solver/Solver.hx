@@ -18,6 +18,10 @@ class Solver {
   public function new(){
   }
 
+  public function stepLog(row_or_column: String, index: Int, step: Int, message: String){
+    trace("("+step+") "+"[" + row_or_column + " " + (index+1) + "] " + message);
+  }
+
   // 問題をJSONから読み込む
   public function readFromJson(json: String){
     this.problem = new Problem(json);
@@ -197,9 +201,9 @@ class Solver {
               }
             }
             if(flag_line){
-              trace("[row "+y+"] split by cross, and fill");
-              trace("\n" + matrix.toString());
               step += 1;
+              stepLog("row",y,step,"split by cross, and fill");
+              trace("\n" + matrix.toString());
             }
             continue;
         }
@@ -225,9 +229,9 @@ class Solver {
               }
             }
             if(flag_line){
-              trace("[col "+x+"] split by cross, and fill");
-              trace("\n" + matrix.toString());
               step += 1;
+              stepLog("col",x,step,"split by cross, and fill");
+              trace("\n" + matrix.toString());
             }
             continue;
         }
@@ -252,12 +256,24 @@ class Solver {
 
     // 分割数 == 数字の数 ならば
     if( splitted.length == _nums.length ){
+
+      var sum = _nums.fold(function(n, num){
+        return n + num;
+      }, 0);
       
       // 数字と対応した分割かどうかチェック
-      for( i in 0...splitted.length ){
-        // 対応していない (ブロックの幅 < 数字)
-        if( splitted[i].list.length < _nums[i] ){
-          return None;
+      if( _nums.length > 1 ){
+        for( i in 0...splitted.length ){
+          // 対応していない (ブロックの幅 < 数字)
+          if( splitted[i].list.length < _nums[i] ){
+            return None;
+          }
+
+          // ２つ以上の数字が入る余地がある
+          // FIXME: これではミスを回避するのに完全ではない
+          if( splitted[i].list.length > sum ){
+            return None;
+          }
         }
       }
 
@@ -386,8 +402,6 @@ class Solver {
           case None:
             continue;
           case Some(list):
-            trace("list: " + list);
-            trace("row: " + row);
             flag_line = false;
             for( x in 0...width ){
               if( matrix.get(x,y) != list[x] ){
@@ -397,9 +411,9 @@ class Solver {
               }
             }
             if(flag_line){
-              trace("[row "+y+"] smart cross and fill");
-              trace("\n" + matrix.toString());
               step += 1;
+              stepLog("row",y,step,"smart cross and fill");
+              trace("\n" + matrix.toString());
             }
             continue;
         }
@@ -424,9 +438,9 @@ class Solver {
               }
             }
             if(flag_line){
-              trace("[col "+x+"] smart cross and fill");
-              trace("\n" + matrix.toString());
               step += 1;
+              stepLog("col",x,step,"smart cross and fill");
+              trace("\n" + matrix.toString());
             }
             continue;
         }
@@ -452,7 +466,7 @@ class Solver {
     var ret = function(){
       return if(changed) Some(result) else None;
     }
-
+    
     while(true){
       var sh = simpleShrink(list, left);
       right = (_list.length - sh.list.length) - sh.left;
@@ -471,6 +485,32 @@ class Solver {
       var gr_len = gr.length;
       var first_num = nums[0];
       var last_num = nums[nums.length-1];
+
+      // [OX__ を [__ に縮める
+      if(
+          gr[0].isFilledGroup()
+          && gr[0].getCount() == first_num
+          && gr[1].isCrossGroup()
+        ){
+
+        list = list.slice(first_num + 1, list.length);
+        left += first_num + 1;
+        nums = nums.slice(1, nums.length);
+        continue;
+
+      // __XO] を __] に縮める
+      }else if(
+          gr[gr_len-1].isFilledGroup()
+          && gr[gr_len-1].getCount() == last_num
+          && gr[gr_len-2].isCrossGroup()
+        ){
+        list = list.slice(0, list.length - last_num - 1);
+        right += last_num + 1;
+        nums = nums.slice(0, nums.length-1);
+        continue;
+      }
+
+      // ==========
 
       // [O___ を [OX__ に置換する
       if(
@@ -582,10 +622,10 @@ class Solver {
   }
 
   // 端の方の完成している数字のマスを検出し、その分縮めて返す
-  private function smartShrink(_nums: Array<Int>, _list: Array<State>): ListWithOffsetAndNums {
+  private function smartShrink(_nums: Array<Int>, _list: Array<State>, left_offset = 0): ListWithOffsetAndNums {
     var list = _list.slice(0, _list.length);
     var nums = _nums.slice(0, _nums.length);
-    var left = 0;
+    var left = left_offset;
 
     while(true){
       var sh = simpleShrink(list, left);
@@ -684,14 +724,14 @@ class Solver {
             for( x in left...(shrinked.list.length + left) ){
               matrix.set(x,y,list[x-left]);
             }
+            step += 1;
             if(row.length == shrinked.list.length){
-              trace("[row "+y+"] smart shared area method");
+              stepLog("row",y,step,"smart shared area method");
             }else{
-              trace("[row "+y+"] smart shrinking shared area method");
+              stepLog("row",y,step,"smart shrinking shared area method");
             }
             trace("\n" + matrix.toString());
             flag = true;
-            step += 1;
             continue;
         }
       }
@@ -717,14 +757,14 @@ class Solver {
                 matrix.set(x,y,list[y-left]);
               }
             }
+            step += 1;
             if(column.length == shrinked.list.length){
-              trace("[col "+x+"] smart shared area method");
+              stepLog("col",x,step,"smart shared area method");
             }else{
-              trace("[col "+x+"] smart shrinking shared area method");
+              stepLog("col",x,step,"smart shrinking shared area method");
             }
             trace("\n" + matrix.toString());
             flag = true;
-            step += 1;
             // trace("nums: "+nums);
             // trace("column: "+column);
             // trace("shrinked: "+shrinked);
@@ -764,14 +804,14 @@ class Solver {
             for( x in left...(shrinked.list.length + left) ){
               matrix.set(x,y,list[x-left]);
             }
+            step += 1;
             if(row.length == shrinked.list.length){
-              trace("[row "+y+"] simple shared area method");
+              stepLog("row",y,step,"simple shared area method");
             }else{
-              trace("[row "+y+"] simple shrinking shared area method");
+              stepLog("row",y,step,"simple shrinking shared area method");
             }
             trace("\n" + matrix.toString());
             flag = true;
-            step += 1;
             continue;
         }
       }
@@ -795,14 +835,14 @@ class Solver {
             for( y in left...(list.length + left) ){
               matrix.set(x,y,list[y-left]);
             }
+            step += 1;
             if(column.length == shrinked.list.length){
-              trace("[col "+x+"] simple shared area method");
+              stepLog("col",x,step,"simple shared area method");
             }else{
-              trace("[col "+x+"] simple shrinking shared area method");
+              stepLog("col",x,step,"simple shrinking shared area method");
             }
             trace("\n" + matrix.toString());
             flag = true;
-            step += 1;
             // trace("nums: "+nums);
             // trace("column: "+column);
             // trace("shrinked: "+shrinked);
@@ -834,10 +874,10 @@ class Solver {
             for( x in 0...width ){
               matrix.set(x,y,list[x]);
             }
-            trace("[row "+y+"] simple shared area method");
+            step += 1;
+            stepLog("row",y,step,"simple shared area method");
             trace("\n" + matrix.toString());
             flag = true;
-            step += 1;
             continue;
         }
       }
@@ -856,10 +896,10 @@ class Solver {
             for( y in 0...height ){
               matrix.set(x,y,list[y]);
             }
-            trace("[col "+x+"] simple shared area method");
+            step += 1;
+            stepLog("col",x,step,"simple shared area method");
             trace("\n" + matrix.toString());
             flag = true;
-            step += 1;
             continue;
         }
       }
@@ -904,7 +944,7 @@ class Solver {
           step += 1;
           // 空白を×に置き換える
           matrix.rowReplaceBlankToCross(y);
-          trace("[row "+y+"] numbers completed");
+          stepLog("row",y,step,"numbers completed");
           trace("\n" + matrix.toString());
         }
       }
@@ -922,7 +962,7 @@ class Solver {
           step += 1;
           // 空白を×に置き換える
           matrix.columnReplaceBlankToCross(x);
-          trace("[col "+x+"] numbers completed");
+          stepLog("col",x,step,"numbers completed");
           trace("\n" + matrix.toString());
         }
       }
