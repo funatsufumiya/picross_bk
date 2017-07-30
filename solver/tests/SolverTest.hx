@@ -554,7 +554,7 @@ class SolverTest extends TestCase {
     var f = Reflect.callMethod.bind(solver,Reflect.field(solver, "calcExtendEdge"),_);
 
     assertEquals(
-        "[Blank,Blank,Blank,Blank,Blank,Filled,Filled]",
+        "Some([Blank,Blank,Blank,Blank,Blank,Filled,Filled])",
         Std.string( f(
             [
               [2,2],
@@ -563,7 +563,7 @@ class SolverTest extends TestCase {
         )));
 
     assertEquals(
-        "[Filled,Filled,Blank,Blank,Blank,Blank,Blank]",
+        "Some([Filled,Filled,Blank,Blank,Blank,Blank,Blank])",
         Std.string( f(
             [
               [2,2],
@@ -572,7 +572,7 @@ class SolverTest extends TestCase {
         )));
 
     assertEquals(
-        "[Filled,Filled,Blank,Blank,Blank,Filled,Filled]",
+        "Some([Filled,Filled,Blank,Blank,Blank,Filled,Filled])",
         Std.string( f(
             [
               [2,2],
@@ -581,7 +581,7 @@ class SolverTest extends TestCase {
         )));
 
     assertEquals(
-        "[Blank,Filled,Filled,Blank,Blank,Blank,Blank,Blank]",
+        "Some([Blank,Filled,Filled,Blank,Blank,Blank,Blank,Blank])",
         Std.string( f(
             [
               [3,2],
@@ -590,7 +590,7 @@ class SolverTest extends TestCase {
         )));
 
     assertEquals(
-        "[Blank,Filled,Filled,Filled,Blank,Blank,Blank,Blank]",
+        "Some([Blank,Filled,Filled,Filled,Blank,Blank,Blank,Blank])",
         Std.string( f(
             [
               [4,1],
@@ -599,7 +599,7 @@ class SolverTest extends TestCase {
         )));
 
     assertEquals(
-        "[Blank,Blank,Blank,Blank,Filled,Filled,Filled,Blank]",
+        "Some([Blank,Blank,Blank,Blank,Filled,Filled,Filled,Blank])",
         Std.string( f(
             [
               [1,4],
@@ -608,7 +608,7 @@ class SolverTest extends TestCase {
         )));
 
     assertEquals(
-        "[Filled,Cross,Blank,Blank,Blank,Blank,Blank,Filled,Filled]",
+        "Some([Filled,Cross,Blank,Blank,Blank,Blank,Blank,Filled,Filled])",
         Std.string( f(
             [
               [1,2,2],
@@ -617,7 +617,7 @@ class SolverTest extends TestCase {
         )));
 
     assertEquals(
-        "[Blank,Blank,Blank,Blank,Blank,Filled,Filled,Cross,Filled,Filled]",
+        "Some([Blank,Blank,Blank,Blank,Blank,Filled,Filled,Cross,Filled,Filled])",
         Std.string( f(
             [
               [2,2,2],

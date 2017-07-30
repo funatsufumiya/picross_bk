@@ -185,10 +185,10 @@ class Solver {
 
   // 端にある塗りつぶしを、可能な限り延長する
   private function calcExtendEdge(_nums: Array<Int>, _list: Array<State>)
-    : Array<State>
+    : Option<Array<State>>
   {
     if(_nums.length < 1){
-      return _list;
+      return None;
     }
 
     var sh = smartShrink(_nums, _list);
@@ -245,7 +245,69 @@ class Solver {
       }
     }
 
-    return result;
+    return Some(result);
+  }
+
+  // 端にある塗りつぶしを、可能な限り延長する
+  private function extendEdge(){
+    var flag = false;
+    var flag_line = false;
+
+    for( y in 0...height ){
+      if(matrix.hasBlankInRow(y)){
+        var nums = problem.rows[y];
+        var row = matrix.row(y);
+        var result = calcExtendEdge(nums, row);
+        switch (result) {
+          case None:
+            continue;
+          case Some(list):
+            flag_line = false;
+            for( x in 0...width ){
+              if( matrix.get(x,y) != list[x] ){
+                matrix.set(x,y,list[x]);
+                flag = true;
+                flag_line = true;
+              }
+            }
+            if(flag_line){
+              step += 1;
+              stepLog("row",y,step,"extend edge");
+              trace("\n" + matrix.toString());
+            }
+            continue;
+        }
+      }
+    }
+
+    for( x in 0...width ){
+      if(matrix.hasBlankInColumn(x)){
+        var nums = problem.columns[x];
+        var column = matrix.column(x);
+        var result = calcExtendEdge(nums, column);
+        switch (result) {
+          case None:
+            continue;
+          case Some(list):
+            flag_line = false;
+            for( y in 0...height ){
+              if( matrix.get(x,y) != list[y] ){
+                matrix.set(x,y,list[y]);
+                flag = true;
+                flag_line = true;
+              }
+            }
+            if(flag_line){
+              step += 1;
+              stepLog("col",x,step,"extend edge");
+              trace("\n" + matrix.toString());
+            }
+            continue;
+        }
+      }
+    }
+
+    return flag;
   }
 
   // Xによってリストを分割し、可能な限り×付けや塗りを行う
@@ -1135,6 +1197,7 @@ class Solver {
 
       smartShrinkingSharedAreaMethod();
       smartCrossAndFill();
+      extendEdge();
       splitByCrossAndFill();
       checkFixedAndCross();
 
