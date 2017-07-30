@@ -490,6 +490,22 @@ class SolverTest extends TestCase {
             ]
         )));
 
+    // nums: [5,7]
+    // column: ///_____#__/___________//
+
+    assertEquals(
+        Std.string( Some( StateHelper.toStates(
+          "////__###__/____###____//"
+        ))),
+        Std.string( f(
+            [
+              [5,7],
+              StateHelper.toStates(
+                "///_____#__/___________//"
+              )
+            ]
+        )));
+
   }
 
   public function test_calcUnreachableAndMergeFilled(){

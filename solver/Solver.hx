@@ -320,13 +320,14 @@ class Solver {
         var prev_num = -1;
 
         while(true){
-          if( filt_sp.length > 0 && filt_nums.length > 1){
+          if( filt_sp.length > 0 && filt_nums.length > 0){
 
             // 左端のブロックに、２つ分の数字が入るなら除外
             // (前後2つの数字が入るかをチェック)
 
             // 後２つの数字をチェック
-            if( filt_sp[0].list.length
+            if( filt_nums.length > 1
+                && filt_sp[0].list.length
                 >= filt_nums[0] + filt_nums[1] + 1 ){
               return None;
             // 前２つの数字をチェック
@@ -345,7 +346,8 @@ class Solver {
             // (前後2つの数字が入るかをチェック)
 
             // 前２つの数字をチェック
-            if( filt_sp[filt_sp.length-1].list.length
+            if( filt_nums.length > 1
+                && filt_sp[filt_sp.length-1].list.length
                 >= filt_nums[filt_nums.length-1] + filt_nums[filt_nums.length-2] + 1){
               return None;
             // 後２つの数字をチェック
@@ -365,13 +367,16 @@ class Solver {
           }
         }
 
-        var sum = filt_nums.fold(function(n, num){
-          return n + num;
-        }, 0);
+        // 残った部分に、残りの数字が入ってしまう区画があれば除外
+        if(filt_nums.length > 1){
+          var sum = filt_nums.fold(function(n, num){
+            return n + num + 1;
+          }, 0);
 
-        for( i in 0...filt_sp.length ){
-          if( filt_sp[i].list.length > sum ){
-            return None;
+          for( i in 0...filt_sp.length ){
+            if( filt_sp[i].list.length > sum ){
+              return None;
+            }
           }
         }
       }
