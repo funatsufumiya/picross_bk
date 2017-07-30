@@ -322,10 +322,14 @@ class Solver {
         while(true){
           if( filt_sp.length > 0 && filt_nums.length > 1){
 
-            // 左端のブロックに、２つ分の数字が入る
+            // 左端のブロックに、２つ分の数字が入るなら除外
+            // (前後2つの数字が入るかをチェック)
+
+            // 後２つの数字をチェック
             if( filt_sp[0].list.length
                 >= filt_nums[0] + filt_nums[1] + 1 ){
               return None;
+            // 前２つの数字をチェック
             }else if( prev_num > -1
                 && filt_sp[0].list.length
                 >= prev_num + filt_nums[0] + 1 ){
@@ -337,10 +341,14 @@ class Solver {
               continue;
             }
             
-            // 右のブロックに、２つ分の数字が入る
+            // 右のブロックに、２つ分の数字が入るなら除外
+            // (前後2つの数字が入るかをチェック)
+
+            // 前２つの数字をチェック
             if( filt_sp[filt_sp.length-1].list.length
                 >= filt_nums[filt_nums.length-1] + filt_nums[filt_nums.length-2] + 1){
               return None;
+            // 後２つの数字をチェック
             }else if( prev_num > -1
                 && filt_sp[filt_sp.length-1].list.length
                 >= prev_num + filt_nums[filt_nums.length-1] + 1 ){
