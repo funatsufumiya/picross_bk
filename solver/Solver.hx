@@ -8,18 +8,28 @@ using StateHelper;
 typedef ListWithOffset = { list: Array<State>, left: Int }
 typedef ListWithOffsetAndNums = { list: Array<State>, left: Int, nums: Array<Int> }
 
+@:expose
 class Solver {
   private var problem: Problem;
   private var matrix: Matrix; 
   private var width: Int;
   private var height: Int;
   private var step: Int;
+  private var status: String;
 
   public function new(){
   }
 
-  public function stepLog(row_or_column: String, index: Int, step: Int, message: String){
-    trace("("+step+") "+"[" + row_or_column + " " + (index+1) + "] " + message);
+  public function getMatrix(): Matrix {
+    return matrix;
+  }
+
+  public function getMatrixString(): String {
+    return matrix.toString();
+  }
+
+  public function getStatus(): String {
+    return status;
   }
 
   // 問題をJSONから読み込む
@@ -34,6 +44,18 @@ class Solver {
     // trace("columnDepth: " + problem.columnDepth);
     // trace("width: " + problem.width);
     // trace("height: " + problem.height);
+  }
+
+  private function stepLog(row_or_column: String, index: Int, step: Int, message: String){
+    #if debug
+    trace("("+step+") "+"[" + row_or_column + " " + (index+1) + "] " + message);
+    #end
+  }
+
+  private function logMatrix(matrix:Matrix, step:Int){
+    #if debug
+    trace("(step "+step+")\n" + matrix.toString());
+    #end
   }
 
   // 行・列の共通部分を実際に計算する関数
@@ -100,12 +122,14 @@ class Solver {
         // fill_first から fill_last までを共通部分として塗りつぶす
         if(diff_num > 0){
           for( j in fill_first...fill_last ){
+            #if neko
             if(j < 0){
               trace("Error on calcSharedArea !!");
               trace("nums: " + nums);
               trace("row: " + row.toVisualString());
               Sys.exit(1);
             }
+            #end
             dots[j] = Filled;
           }
           // trace("dots: " + dots);
@@ -301,7 +325,7 @@ class Solver {
             if(flag_line){
               step += 1;
               stepLog("row",y,step,"extend edge");
-              trace("\n" + matrix.toString());
+              logMatrix(matrix, step);
             }
             continue;
         }
@@ -328,7 +352,7 @@ class Solver {
             if(flag_line){
               step += 1;
               stepLog("col",x,step,"extend edge");
-              trace("\n" + matrix.toString());
+              logMatrix(matrix, step);
             }
             continue;
         }
@@ -364,7 +388,7 @@ class Solver {
             if(flag_line){
               step += 1;
               stepLog("row",y,step,"split by cross, and fill");
-              trace("\n" + matrix.toString());
+              logMatrix(matrix, step);
             }
             continue;
         }
@@ -392,7 +416,7 @@ class Solver {
             if(flag_line){
               step += 1;
               stepLog("col",x,step,"split by cross, and fill");
-              trace("\n" + matrix.toString());
+              logMatrix(matrix, step);
             }
             continue;
         }
@@ -634,7 +658,7 @@ class Solver {
             if(flag_line){
               step += 1;
               stepLog("row",y,step,"smart cross and fill");
-              trace("\n" + matrix.toString());
+              logMatrix(matrix, step);
             }
             continue;
         }
@@ -661,7 +685,7 @@ class Solver {
             if(flag_line){
               step += 1;
               stepLog("col",x,step,"smart cross and fill");
-              trace("\n" + matrix.toString());
+              logMatrix(matrix, step);
             }
             continue;
         }
@@ -951,7 +975,7 @@ class Solver {
             }else{
               stepLog("row",y,step,"smart shrinking shared area method");
             }
-            trace("\n" + matrix.toString());
+            logMatrix(matrix, step);
             flag = true;
             continue;
         }
@@ -984,7 +1008,7 @@ class Solver {
             }else{
               stepLog("col",x,step,"smart shrinking shared area method");
             }
-            trace("\n" + matrix.toString());
+            logMatrix(matrix, step);
             flag = true;
             // trace("nums: "+nums);
             // trace("column: "+column);
@@ -1031,7 +1055,7 @@ class Solver {
             }else{
               stepLog("row",y,step,"simple shrinking shared area method");
             }
-            trace("\n" + matrix.toString());
+            logMatrix(matrix, step);
             flag = true;
             continue;
         }
@@ -1062,7 +1086,7 @@ class Solver {
             }else{
               stepLog("col",x,step,"simple shrinking shared area method");
             }
-            trace("\n" + matrix.toString());
+            logMatrix(matrix, step);
             flag = true;
             // trace("nums: "+nums);
             // trace("column: "+column);
@@ -1097,7 +1121,7 @@ class Solver {
             }
             step += 1;
             stepLog("row",y,step,"simple shared area method");
-            trace("\n" + matrix.toString());
+            logMatrix(matrix, step);
             flag = true;
             continue;
         }
@@ -1119,7 +1143,7 @@ class Solver {
             }
             step += 1;
             stepLog("col",x,step,"simple shared area method");
-            trace("\n" + matrix.toString());
+            logMatrix(matrix, step);
             flag = true;
             continue;
         }
@@ -1166,7 +1190,7 @@ class Solver {
           // 空白を×に置き換える
           matrix.rowReplaceBlankToCross(y);
           stepLog("row",y,step,"numbers completed");
-          trace("\n" + matrix.toString());
+          logMatrix(matrix, step);
         }
       }
     }
@@ -1184,7 +1208,7 @@ class Solver {
           // 空白を×に置き換える
           matrix.columnReplaceBlankToCross(x);
           stepLog("col",x,step,"numbers completed");
-          trace("\n" + matrix.toString());
+          logMatrix(matrix, step);
         }
       }
     }
@@ -1215,8 +1239,9 @@ class Solver {
   // }
 
   // 問題を解く
-  public function solve(): Option<Matrix>{
+  public function solve(): Bool {
     matrix = new Matrix(width, height);
+    status = "";
 
     step = 0;
     while(matrix.hasBlank()){
@@ -1234,17 +1259,25 @@ class Solver {
       }
 
       if( matrix.isChanged == false ){
+        status = "失敗 (" + step + " steps)";
+        status += "\n" + ("rows: " + problem.rows);
+        status += "\n" + ("columns: " + problem.columns);
+        #if debug
         trace("失敗 (" + step + " steps)");
         trace("rows: " + problem.rows);
         trace("columns: " + problem.columns);
-        return None; // 失敗
+        #end
+        return false; // 失敗
       }
 
       // trace("\n" + matrix.toString());
     }
 
+    status = "成功 (" + step + " steps)";
+    #if debug
     trace("成功 (" + step + " steps)");
-    trace("\n" + matrix.toString());
-    return Some(matrix); // 成功
+    #end
+    logMatrix(matrix, step);
+    return true;
   }
 }

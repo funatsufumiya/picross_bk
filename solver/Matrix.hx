@@ -165,7 +165,7 @@ class Matrix {
 
   public function toString(){
     return this.matrix.map(function(row){
-      row.map(function(v){
+      return row.map(function(v){
         switch v {
           case Blank:
             return "_";

@@ -1,2 +1,5 @@
--main Main
--neko solver.n
+# -main Main
+-cp .
+Solver
+-js solver.js
+# -debug

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-haxe -main Main -D eval-stack --interp
+haxe -main Main -debug -D eval-stack --interp
