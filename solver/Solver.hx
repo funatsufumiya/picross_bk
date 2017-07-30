@@ -183,6 +183,71 @@ class Solver {
 
   }
 
+  // 端にある塗りつぶしを、可能な限り延長する
+  private function calcExtendEdge(_nums: Array<Int>, _list: Array<State>)
+    : Array<State>
+  {
+    if(_nums.length < 1){
+      return _list;
+    }
+
+    var sh = smartShrink(_nums, _list);
+    var left = sh.left;
+    var list = sh.list;
+    var nums = sh.nums;
+    var result = _list.slice(0, _list.length);
+    var gr = list.toGroups();
+
+    // 左端が塗られていれば、さらに右に延長
+    if( Type.enumEq(list[0], Filled) && list.length > nums[0] ){
+      for( i in 0...nums[0] ){
+        result[left+i] = Filled;
+      }
+    }
+
+    // 右端が塗られていれば、さらに左に延長
+    if( Type.enumEq(list[list.length-1], Filled) && list.length > nums[nums.length-1] ){
+      var l = list.length - nums[nums.length-1];
+      for( i in l...list.length ){
+        result[left+i] = Filled;
+      }
+    }
+
+    // 左端に近い塗りを右に延長
+    if( gr.length > 2
+        && list.length > nums[0]
+        && gr[0].isBlankGroup()
+        && gr[0].getCount() < nums[0]
+        && gr[1].isFilledGroup()
+        && gr[1].getCount() < nums[0]
+      ){
+      var n = gr[0].getCount() + gr[1].getCount();
+      if(n < nums[0]){
+        for( i in n...nums[0] ){
+          result[left+i] = Filled;
+        }
+      }
+    }
+
+    // 右端に近い塗りを左に延長
+    if( gr.length > 2
+        && list.length > nums[nums.length-1]
+        && gr[gr.length-1].isBlankGroup()
+        && gr[gr.length-1].getCount() < nums[nums.length-1]
+        && gr[gr.length-2].isFilledGroup()
+        && gr[gr.length-2].getCount() < nums[nums.length-1]
+      ){
+      var n = gr[gr.length-1].getCount() + gr[gr.length-2].getCount();
+      if(n < nums[nums.length-1]){
+        for( i in (list.length - nums[nums.length-1])...(list.length - n) ){
+          result[left+i] = Filled;
+        }
+      }
+    }
+
+    return result;
+  }
+
   // Xによってリストを分割し、可能な限り×付けや塗りを行う
   private function splitByCrossAndFill(){
     var flag = false;
