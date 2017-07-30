@@ -245,6 +245,34 @@ class Solver {
       }
     }
 
+    // 左端の空欄の数 <= 左端の数字 の場合、左端から×を付ける
+    if( gr.length > 1
+        && list.length > nums[0]
+        && gr[0].isBlankGroup()
+        && gr[0].getCount() <= nums[0]
+        && gr[1].isFilledGroup()
+        && gr[1].getCount() <= nums[0]
+      ){
+      var diff = ( gr[0].getCount() + gr[1].getCount() ) - nums[0];
+      for( i in 0...diff ){
+        result[left+i] = Cross;
+      }
+    }
+
+    // 右端の空欄の数 <= 右端の数字 の場合、右端から×を付ける
+    if( gr.length > 1
+        && list.length > nums[nums.length-1]
+        && gr[gr.length-1].isBlankGroup()
+        && gr[gr.length-1].getCount() <= nums[nums.length-1]
+        && gr[gr.length-2].isFilledGroup()
+        && gr[gr.length-2].getCount() <= nums[nums.length-1]
+      ){
+      var diff = ( gr[gr.length-1].getCount() + gr[gr.length-2].getCount() ) - nums[nums.length-1];
+      for( i in (list.length - diff)...(list.length) ){
+        result[left+i] = Cross;
+      }
+    }
+
     return Some(result);
   }
 

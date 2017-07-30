@@ -624,6 +624,43 @@ class SolverTest extends TestCase {
               [Blank,Blank,Blank,Blank,Blank,Blank,Filled,Cross,Filled,Filled],
             ]
         )));
+
+    assertEquals(
+        "Some([Cross,Blank,Filled,Blank,Blank,Blank,Blank])",
+        Std.string( f(
+            [
+              [2,2],
+              [Blank,Blank,Filled,Blank,Blank,Blank,Blank],
+            ]
+        )));
+
+    assertEquals(
+        "Some([Cross,Blank,Blank,Filled,Blank,Blank,Blank,Blank])",
+        Std.string( f(
+            [
+              [3,1],
+              [Blank,Blank,Blank,Filled,Blank,Blank,Blank,Blank],
+            ]
+        )));
+
+    assertEquals(
+        "Some([Blank,Blank,Blank,Blank,Filled,Blank,Cross])",
+        Std.string( f(
+            [
+              [2,2],
+              [Blank,Blank,Blank,Blank,Filled,Blank,Blank],
+            ]
+        )));
+
+    assertEquals(
+        "Some([Blank,Blank,Blank,Blank,Filled,Blank,Blank,Cross])",
+        Std.string( f(
+            [
+              [1,3],
+              [Blank,Blank,Blank,Blank,Filled,Blank,Blank,Blank],
+            ]
+        )));
+
   }
 
 }
