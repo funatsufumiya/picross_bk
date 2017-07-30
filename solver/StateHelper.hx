@@ -104,4 +104,15 @@ class StateHelper {
         return n;
     }
   }
+
+  public static function toStates(s:String): Array<State>{
+    return [ for( i in 0...s.length ){
+      switch(s.charAt(i)){
+        case "_": Blank;
+        case "#": Filled;
+        case "/": Cross;
+        case _: null;
+      }
+    } ];
+  }
 }

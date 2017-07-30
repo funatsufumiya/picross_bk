@@ -317,24 +317,37 @@ class Solver {
 
         var filt_sp = splitted.slice(0, splitted.length);
         var filt_nums = _nums.slice(0, _nums.length);
+        var prev_num = -1;
 
         while(true){
           if( filt_sp.length > 0 && filt_nums.length > 1){
 
+            // 左端のブロックに、２つ分の数字が入る
             if( filt_sp[0].list.length
                 >= filt_nums[0] + filt_nums[1] + 1 ){
               return None;
+            }else if( prev_num > -1
+                && filt_sp[0].list.length
+                >= prev_num + filt_nums[0] + 1 ){
+              return None;
             }else{
               filt_sp = filt_sp.slice(1, filt_sp.length);
+              prev_num = filt_nums[0];
               filt_nums = filt_nums.slice(1, filt_nums.length);
               continue;
             }
             
+            // 右のブロックに、２つ分の数字が入る
             if( filt_sp[filt_sp.length-1].list.length
                 >= filt_nums[filt_nums.length-1] + filt_nums[filt_nums.length-2] + 1){
               return None;
+            }else if( prev_num > -1
+                && filt_sp[filt_sp.length-1].list.length
+                >= prev_num + filt_nums[filt_nums.length-1] + 1 ){
+              return None;
             }else{
               filt_sp = filt_sp.slice(0, filt_sp.length-1);
+              prev_num = filt_nums[filt_nums.length-1];
               filt_nums = filt_nums.slice(0, filt_nums.length-1);
               continue;
             }

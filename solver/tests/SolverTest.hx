@@ -1,5 +1,6 @@
 package tests;
 
+import haxe.ds.Option;
 import haxe.unit.TestCase;
 import State.*;
 
@@ -470,6 +471,22 @@ class SolverTest extends TestCase {
             [
               [2,2],
               [Blank,Filled,Cross,Blank,Blank,Cross,Filled,Blank]
+            ]
+        )));
+
+    // nums: [3,2,6]
+    // list:  [____/_#____/#####_///////]
+    // wrong: [_##_/_#_////######///////]
+    // right: [____/_#____/#####_///////]
+
+    assertEquals(
+        "None",
+        Std.string( f(
+            [
+              [3,2,6],
+              StateHelper.toStates(
+                "____/_#____/#####_///////"
+              )
             ]
         )));
 
