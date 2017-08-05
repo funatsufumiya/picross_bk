@@ -91,6 +91,12 @@ function blob_to_image($blob){
   return imagecreatefromstring($blob);
 }
 
+function image_aspect($image){
+  $width = imagesx($image);
+  $height = imagesy($image);
+  return $height/$width;
+}
+
 function resize_image($image, $nw, $nh){
   $width = imagesx($image);
   $height = imagesy($image);
@@ -154,7 +160,7 @@ $word = (isset($_REQUEST['q']))? $_REQUEST['q']: random_word();
 
 $res = call_api2("GET", $pixabay_api, array(
   "key" => $api_key,
-  "image_type" => "vector",
+  "image_type" => ( (isset($_REQUEST['type']))? $_REQUEST['type']: "vector" ),
   "q" => $word
 ));
 
@@ -224,7 +230,10 @@ foreach($hits as $v){
   // $base64 = blob_jpg_to_base64($blob);
   // $base64 = black_image_base64($preview_url, 0.5);
   $img = black_image($preview_url, 0.5);
+  $img_dark = black_image($preview_url, 0.7);
+  $img_bright = black_image($preview_url, 0.3);
   $img_base64 = image_to_base64($img);
+  $r = image_aspect($img);
   // $img_15 = resize_image($img, 15, 15);
   // $img_15_base64 = image_to_base64($img_15);
   // $img_15_bk_base64 = image_to_base64($img_15_bk);
@@ -235,13 +244,35 @@ foreach($hits as $v){
   $img_30_bk_base64 = image_resize_bk_base64($img, 30, 30);
 
   echo "<img src='$img_base64'/>";
+  echo "<img src='".image_to_base64($img_dark)."'/>";
+  echo "<img src='".image_to_base64($img_bright)."'/>";
   echo "<br>";
   // echo "<img class='dot_img' src='$img_15_base64'/>";
-  echo "<img class='dot_img' src='$img_10_bk_base64'/>";
-  echo "<img class='dot_img' src='$img_15_bk_base64'/>";
-  echo "<img class='dot_img' src='$img_20_bk_base64'/>";
-  echo "<img class='dot_img' src='$img_25_bk_base64'/>";
-  echo "<img class='dot_img' src='$img_30_bk_base64'/>";
+  echo "<img class='dot_img' data-size='10x10' src='$img_10_bk_base64'/>";
+  echo "<img class='dot_img' data-size='15x15' src='$img_15_bk_base64'/>";
+  echo "<img class='dot_img' data-size='20x20' src='$img_20_bk_base64'/>";
+  echo "<img class='dot_img' data-size='25x25' src='$img_25_bk_base64'/>";
+  echo "<img class='dot_img' data-size='30x30' src='$img_30_bk_base64'/>";
+
+  echo "<br>";
+  for($i=10; $i<=30; $i+=5){
+    $base64 = image_resize_bk_base64($img, $i, intval($i*$r));
+    echo "<img class='dot_img img_normal' data-size='".$i."x".(intval($i*$r))."' src='$base64'/>";
+  }
+
+  echo "<br>";
+  for($i=15; $i<=30; $i+=5){
+    $base64 = image_resize_bk_base64($img_dark, $i, intval($i*$r));
+    echo "<img class='dot_img img_dark' data-size='".$i."x".(intval($i*$r))."' src='$base64'/>";
+  }
+
+  echo "<br>";
+  for($i=15; $i<=30; $i+=5){
+    $base64 = image_resize_bk_base64($img_bright, $i, intval($i*$r));
+    echo "<img class='dot_img img_bright' data-size='".$i."x".(intval($i*$r))."' src='$base64'/>";
+  }
+
+  echo "<br>";
   echo "</div>";
 
   @ob_flush();
@@ -250,7 +281,8 @@ foreach($hits as $v){
   $count++;
 }
 
-echo "<hr>";
+// echo "<hr>";
+echo '<div style="width:100%; height:10px; background:#ff0000;"></div>';
 
 // echo "<pre>";
 // print_r($hits);

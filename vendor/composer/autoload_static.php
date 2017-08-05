@@ -44,11 +44,22 @@ class ComposerStaticInit2741757596d6964e6e35f45ae0b89a0d
         ),
     );
 
+    public static $prefixesPsr0 = array (
+        'P' => 
+        array (
+            'Phpml' => 
+            array (
+                0 => __DIR__ . '/..' . '/php-ai/php-ml/src',
+            ),
+        ),
+    );
+
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInit2741757596d6964e6e35f45ae0b89a0d::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInit2741757596d6964e6e35f45ae0b89a0d::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit2741757596d6964e6e35f45ae0b89a0d::$prefixesPsr0;
 
         }, null, ClassLoader::class);
     }
