@@ -137,6 +137,27 @@ function image_into_bk($image, $thresh=220){
 
 }
 
+function image_to_array($image){
+  $matrix = array();
+  $width = imagesx($image);
+  $height = imagesy($image);
+
+  // get flatten array
+  for ($y = 0; $y < $height; $y++)
+  {
+    for ($x = 0; $x < $width; $x++)
+    {
+      $rgb = imagecolorat($image, $x, $y);
+      $colors = imagecolorsforindex($image, $rgb);
+      $r = $colors['red'];
+      $val = ($r == 0)? 1: 0;
+      $matrix[] = $val;
+    } // End for
+  } // End for
+  
+  return $matrix;
+}
+
 function image_to_base64($image){
   ob_start();
   imagepng($image);
@@ -150,6 +171,13 @@ function image_resize_bk_base64($image, $w, $h){
   $img_bk = image_into_bk($img);
   imagedestroy($img);
   return image_to_base64($img_bk);
+}
+
+function image_resize_bk($image, $w, $h){
+  $img = resize_image($image, $w, $h);
+  $img_bk = image_into_bk($img);
+  imagedestroy($img);
+  return $img_bk;
 }
 
 // =========================
@@ -171,6 +199,15 @@ if($content_type != "application/json"){
 $json = $res->getBody();
 $list = json_decode($json,true);
 $total_hits = $list["totalHits"];
+
+$use_ai = (isset($_REQUEST['ai']));
+$ai = null;
+
+if( $use_ai ){
+  $model_path = __DIR__ . '/ai/data/model';
+  $modelManager = new Phpml\ModelManager();
+  $ai = $modelManager->restoreFromFile($model_path);
+}
 
 ?>
 <!DOCTYPE html>
@@ -201,6 +238,23 @@ $total_hits = $list["totalHits"];
     image-rendering: optimize-contrast;         /* CSS3 Proposed                  */
     -ms-interpolation-mode: nearest-neighbor;   /* IE8+ */
   }
+
+  .match_rate {
+    display: inline-block;
+    width: 100%;
+    background: #e0e0e0;
+    color: white;
+    padding-left: 10px;
+  }
+
+  .rate_5 {
+    background: red;
+  }
+
+  .rate_3 {
+    background: orange;
+  }
+
   </style>
 
 </head>
@@ -224,12 +278,30 @@ foreach($hits as $v){
   if($count >= 20) break;
 
   $preview_url = $v["previewURL"];
-  echo "<div style='white-space: nowrap; margin-bottom: 20px;'>";
-  echo "<img src='$preview_url'/>";
   // $blob = black_image_blob($preview_url);
   // $base64 = blob_jpg_to_base64($blob);
   // $base64 = black_image_base64($preview_url, 0.5);
   $img = black_image($preview_url, 0.5);
+  $img_30_bk = image_resize_bk($img, 30, 30);
+  $img_30_bk_array = image_to_array($img_30_bk);
+
+  if( $use_ai ) {
+    $match_rate = intval($ai->predict( $img_30_bk_array ));
+    if($match_rate < 3){
+      continue;
+    }
+
+    if($match_rate == 5){
+      echo "<span class=\"match_rate rate_5\">★★★</span>";
+    }else if($match_rate == 3){
+      echo "<span class=\"match_rate rate_3\">★</span>";
+    }
+  }
+
+  echo "<div style='white-space: nowrap; margin-bottom: 20px;'>";
+  echo "<img src='$preview_url'/>";
+
+
   $img_dark = black_image($preview_url, 0.7);
   $img_bright = black_image($preview_url, 0.3);
   $img_base64 = image_to_base64($img);
